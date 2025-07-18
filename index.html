@@ -27,13 +27,12 @@
 
         <div class="calendar-container">
             <div class="calendar">
-                <h2 id="current-month"></h2>
+                <div class="calendar-header-nav">
+                    <button id="prev-month" class="nav-button">◀</button>
+                    <h2 id="current-month"></h2>
+                    <button id="next-month" class="nav-button">▶</button>
+                </div>
                 <div class="calendar-grid" id="current-calendar"></div>
-            </div>
-            
-            <div class="calendar">
-                <h2 id="next-month"></h2>
-                <div class="calendar-grid" id="next-calendar"></div>
             </div>
             
             <div class="reservations-list">
@@ -57,13 +56,27 @@
         // Calendar functionality
         let reservations = [];
         let occupiedDates = new Set();
+        let currentDate = new Date();
 
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', function() {
             setupCalendarURL();
             loadReservations();
-            generateCalendars();
+            generateCalendar();
+            setupNavigation();
         });
+
+        function setupNavigation() {
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                generateCalendar();
+            });
+
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                generateCalendar();
+            });
+        }
 
         function setupCalendarURL() {
             const baseUrl = window.location.href.replace('/index.html', '').replace('/#', '');
@@ -89,7 +102,7 @@
                 const icsData = await response.text();
                 parseICSData(icsData);
                 displayReservations();
-                updateCalendars();
+                generateCalendar();
             } catch (error) {
                 console.error('Error loading calendar:', error);
                 document.getElementById('reservations-container').innerHTML = 
@@ -189,16 +202,7 @@
             container.innerHTML = html;
         }
 
-        function generateCalendars() {
-            const now = new Date();
-            const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-            generateCalendar(currentMonth, 'current-month', 'current-calendar');
-            generateCalendar(nextMonth, 'next-month', 'next-calendar');
-        }
-
-        function generateCalendar(date, headerElementId, gridElementId) {
+        function generateCalendar() {
             const monthNames = [
                 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'
@@ -206,11 +210,11 @@
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
             // Set header
-            document.getElementById(headerElementId).textContent = 
-                `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            document.getElementById('current-month').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
             // Generate calendar grid
-            const gridElement = document.getElementById(gridElementId);
+            const gridElement = document.getElementById('current-calendar');
             gridElement.innerHTML = '';
 
             // Add day headers
@@ -222,13 +226,13 @@
             });
 
             // Get first day of month and number of days
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             const daysInMonth = lastDay.getDate();
             const startingDayOfWeek = firstDay.getDay();
 
             // Add previous month days
-            const prevMonth = new Date(date.getFullYear(), date.getMonth() - 1, 0);
+            const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 0);
             for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                 const dayElement = document.createElement('div');
                 dayElement.className = 'calendar-day other-month';
@@ -243,8 +247,8 @@
                 dayElement.className = 'calendar-day';
                 dayElement.textContent = day;
 
-                const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
-                const dateString = currentDate.toISOString().split('T')[0];
+                const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const dateString = dayDate.toISOString().split('T')[0];
 
                 // Check if occupied
                 if (occupiedDates.has(dateString)) {
@@ -253,7 +257,7 @@
                 }
 
                 // Check if today
-                if (currentDate.toDateString() === today.toDateString()) {
+                if (dayDate.toDateString() === today.toDateString()) {
                     dayElement.classList.add('today');
                 }
 
@@ -269,10 +273,6 @@
                 dayElement.textContent = day;
                 gridElement.appendChild(dayElement);
             }
-        }
-
-        function updateCalendars() {
-            generateCalendars();
         }
     </script>
 </body>
