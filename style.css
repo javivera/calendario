@@ -116,7 +116,6 @@ h1 {
 
 .calendar-day:hover {
     background: #bdc3c7;
-    transform: scale(1.05);
 }
 
 .calendar-day.other-month {
@@ -124,25 +123,24 @@ h1 {
     color: #bdc3c7;
 }
 
-/* Single cabin occupied */
+/* Single cabin occupied - full color */
 .calendar-day.colibri-only {
-    background: linear-gradient(45deg, #e74c3c 50%, #ecf0f1 50%);
+    background: #e74c3c;
     color: white;
     font-weight: bold;
 }
 
 .calendar-day.peperina-only {
-    background: linear-gradient(45deg, #ecf0f1 50%, #9b59b6 50%);
+    background: #9b59b6;
     color: white;
     font-weight: bold;
 }
 
-/* Both cabins occupied */
+/* Both cabins occupied - diagonal split */
 .calendar-day.both-occupied {
     background: linear-gradient(45deg, #e74c3c 50%, #9b59b6 50%);
     color: white;
     font-weight: bold;
-    animation: pulse 2s infinite;
 }
 
 /* Legacy support for old occupied class */
@@ -150,14 +148,13 @@ h1 {
     background: #e74c3c;
     color: white;
     font-weight: bold;
-    animation: pulse 2s infinite;
 }
 
 .calendar-day.occupied:hover,
 .calendar-day.colibri-only:hover,
 .calendar-day.peperina-only:hover,
 .calendar-day.both-occupied:hover {
-    transform: scale(1.05);
+    opacity: 0.8;
 }
 
 .calendar-day.today {
@@ -169,24 +166,18 @@ h1 {
 
 /* Today with cabin occupancy */
 .calendar-day.today.colibri-only {
-    background: linear-gradient(45deg, #e74c3c 50%, #f39c12 50%);
-    border: 3px solid #e67e22;
+    background: #e74c3c;
+    border: 3px solid #f39c12;
 }
 
 .calendar-day.today.peperina-only {
-    background: linear-gradient(45deg, #f39c12 50%, #9b59b6 50%);
-    border: 3px solid #e67e22;
+    background: #9b59b6;
+    border: 3px solid #f39c12;
 }
 
 .calendar-day.today.both-occupied {
     background: linear-gradient(45deg, #e74c3c 50%, #9b59b6 50%);
-    border: 3px solid #e67e22;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    border: 3px solid #f39c12;
 }
 
 .legend {
@@ -212,8 +203,8 @@ h1 {
 }
 
 .legend-available { background: #ecf0f1; }
-.legend-colibri { background: linear-gradient(45deg, #e74c3c 50%, #ecf0f1 50%); }
-.legend-peperina { background: linear-gradient(45deg, #ecf0f1 50%, #9b59b6 50%); }
+.legend-colibri { background: #e74c3c; }
+.legend-peperina { background: #9b59b6; }
 .legend-both { background: linear-gradient(45deg, #e74c3c 50%, #9b59b6 50%); }
 .legend-today { background: #f39c12; }
 
