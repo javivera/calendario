@@ -8,9 +8,9 @@ UID:reservation-Bernardo-Scherman-20250720@cabana.com
 DTSTART;VALUE=DATE:20250720
 DTEND;VALUE=DATE:20250801
 SUMMARY:Reserva: Bernardo Scherman - Colibri
-DESCRIPTION:Huésped: Bernardo Scherman\nCabaña: Colibri\nNoches: 13.0\nTotal: $450.0\nPagado: $468000.0\nNotas: No estoy segura cuanto pagó
+DESCRIPTION:Huésped: Bernardo Scherman\nCabaña: Colibri\nNoches: 13\nTotal: $450\nPagado: $468000.0\nNotas: No estoy segura cuanto pagó
 LOCATION:Colibri - Cabaña
-DTSTAMP:20250721T101133Z
+DTSTAMP:20250721T103040Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -19,20 +19,9 @@ UID:reservation-Nicolás-20250801@cabana.com
 DTSTART;VALUE=DATE:20250801
 DTEND;VALUE=DATE:20250803
 SUMMARY:Reserva: Nicolás - Colibrí
-DESCRIPTION:Huésped: Nicolás\nCabaña: Colibrí\nNoches: 2.0\nTotal: $300.0\nPagado: $0.0
+DESCRIPTION:Huésped: Nicolás\nCabaña: Colibrí\nNoches: 2\nTotal: $300\nPagado: $0.0
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20250721T101133Z
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-END:VEVENT
-BEGIN:VEVENT
-UID:reservation-Prueba-20250728@cabana.com
-DTSTART;VALUE=DATE:20250728
-DTEND;VALUE=DATE:20250801
-SUMMARY:Reserva: Prueba - Peperina
-DESCRIPTION:Huésped: Prueba\nCabaña: Peperina\nNoches: nan\nTotal: $nan\nPagado: $nan
-LOCATION:Peperina - Cabaña
-DTSTAMP:20250721T101133Z
+DTSTAMP:20250721T103040Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
