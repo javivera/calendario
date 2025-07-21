@@ -16,12 +16,20 @@
                 <span>Available</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color legend-occupied"></div>
-                <span>Occupied</span>
+                <div class="legend-color legend-colibri"></div>
+                <span>Colibrí</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-peperina"></div>
+                <span>Peperina</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-both"></div>
+                <span>Ambas</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color legend-today"></div>
-                <span>Today</span>
+                <span>Hoy</span>
             </div>
         </div>
 
@@ -55,7 +63,7 @@
     <script>
         // Calendar functionality
         let reservations = [];
-        let occupiedDates = new Set();
+        let cabinOccupancy = new Map(); // Map to track which cabins are occupied on each date
         let currentDate = new Date();
 
         // Initialize calendar
@@ -141,15 +149,45 @@
 
             reservations = events;
             
-            // Generate occupied dates
-            occupiedDates.clear();
+            // Generate cabin occupancy data
+            cabinOccupancy.clear();
             events.forEach(event => {
                 const start = new Date(event.startDate);
                 const end = new Date(event.endDate);
                 
+                // Extract cabin name from description
+                let cabinName = 'unknown';
+                if (event.description) {
+                    const cabinMatch = event.description.match(/Cabaña:\s*([^\n\\]+)/i);
+                    if (cabinMatch) {
+                        cabinName = cabinMatch[1].trim().toLowerCase();
+                    }
+                }
+                
+                // Normalize cabin names
+                if (cabinName.includes('colibr') || cabinName.includes('colib')) {
+                    cabinName = 'colibri';
+                } else if (cabinName.includes('peperina')) {
+                    cabinName = 'peperina';
+                } else if (cabinName.includes('airbnb')) {
+                    cabinName = 'airbnb'; // Treat airbnb as occupying both
+                }
+                
                 // Add all dates from start to end (excluding end date)
                 for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-                    occupiedDates.add(d.toISOString().split('T')[0]);
+                    const dateString = d.toISOString().split('T')[0];
+                    
+                    if (!cabinOccupancy.has(dateString)) {
+                        cabinOccupancy.set(dateString, new Set());
+                    }
+                    
+                    if (cabinName === 'airbnb') {
+                        // Airbnb reservations occupy both cabins
+                        cabinOccupancy.get(dateString).add('colibri');
+                        cabinOccupancy.get(dateString).add('peperina');
+                    } else {
+                        cabinOccupancy.get(dateString).add(cabinName);
+                    }
                 }
             });
         }
@@ -250,10 +288,22 @@
                 const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
                 const dateString = dayDate.toISOString().split('T')[0];
 
-                // Check if occupied
-                if (occupiedDates.has(dateString)) {
-                    dayElement.classList.add('occupied');
-                    dayElement.title = 'This date is occupied';
+                // Check cabin occupancy
+                const occupiedCabins = cabinOccupancy.get(dateString);
+                if (occupiedCabins && occupiedCabins.size > 0) {
+                    const hasColibri = occupiedCabins.has('colibri');
+                    const hasPeperina = occupiedCabins.has('peperina');
+                    
+                    if (hasColibri && hasPeperina) {
+                        dayElement.classList.add('both-occupied');
+                        dayElement.title = 'Both cabins are occupied';
+                    } else if (hasColibri) {
+                        dayElement.classList.add('colibri-only');
+                        dayElement.title = 'Colibrí cabin is occupied';
+                    } else if (hasPeperina) {
+                        dayElement.classList.add('peperina-only');
+                        dayElement.title = 'Peperina cabin is occupied';
+                    }
                 }
 
                 // Check if today
