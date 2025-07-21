@@ -13,7 +13,7 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color legend-available"></div>
-                <span>Available</span>
+                <span>Disponible</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color legend-colibri"></div>
@@ -44,19 +44,11 @@
             </div>
             
             <div class="reservations-list">
-                <h2>📋 Current Reservations</h2>
+                <h2>📋 Reservas</h2>
                 <div id="reservations-container">
                     <div class="loading">Loading reservations...</div>
                 </div>
             </div>
-        </div>
-
-        <div class="download-section">
-            <h3>📅 Download Calendar</h3>
-            <p>Add this calendar to your favorite calendar app (Google Calendar, Outlook, Apple Calendar, etc.)</p>
-            <a href="./calendar.ics" class="download-link" download>📁 Download ICS File</a>
-            <a href="#" class="download-link" id="copy-url">📋 Copy URL</a>
-            <div id="calendar-url-display" style="margin-top: 15px; font-family: monospace; background: #ecf0f1; padding: 10px; border-radius: 5px; word-break: break-all;"></div>
         </div>
     </div>
 
@@ -68,7 +60,6 @@
 
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', function() {
-            setupCalendarURL();
             loadReservations();
             generateCalendar();
             setupNavigation();
@@ -83,24 +74,6 @@
             document.getElementById('next-month').addEventListener('click', function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 generateCalendar();
-            });
-        }
-
-        function setupCalendarURL() {
-            const baseUrl = window.location.href.replace('/index.html', '').replace('/#', '');
-            const calendarUrl = baseUrl + '/calendar.ics';
-            document.getElementById('calendar-url-display').textContent = calendarUrl;
-            
-            document.getElementById('copy-url').addEventListener('click', function(e) {
-                e.preventDefault();
-                navigator.clipboard.writeText(calendarUrl).then(function() {
-                    const btn = e.target;
-                    const originalText = btn.textContent;
-                    btn.textContent = '✅ Copied!';
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                    }, 2000);
-                });
             });
         }
 

@@ -208,32 +208,6 @@ h1 {
 .legend-both { background: linear-gradient(45deg, #e74c3c 50%, #9b59b6 50%); }
 .legend-today { background: #f39c12; }
 
-.download-section {
-    text-align: center;
-    margin-top: 30px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 10px;
-}
-
-.download-link {
-    display: inline-block;
-    background: #27ae60;
-    color: white;
-    padding: 15px 30px;
-    text-decoration: none;
-    border-radius: 25px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    margin: 10px;
-}
-
-.download-link:hover {
-    background: #219a52;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-}
-
 .reservations-list {
     grid-column: 1 / -1;
     background: #f8f9fa;
