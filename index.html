@@ -181,9 +181,24 @@
                 return;
             }
 
-            const sortedReservations = reservations.sort((a, b) => 
-                new Date(a.startDate) - new Date(b.startDate)
-            );
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+
+            // Filter for upcoming and current reservations (end date >= today)
+            const upcomingReservations = reservations.filter(reservation => {
+                const endDate = new Date(reservation.endDate);
+                return endDate >= today;
+            });
+
+            // Sort by start date and take only the next 3
+            const sortedReservations = upcomingReservations
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+                .slice(0, 3);
+
+            if (sortedReservations.length === 0) {
+                container.innerHTML = '<div class="loading">No upcoming reservations.</div>';
+                return;
+            }
 
             const html = sortedReservations.map(reservation => {
                 const startDate = new Date(reservation.startDate);
