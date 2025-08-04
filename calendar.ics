@@ -10,7 +10,7 @@ DTEND;VALUE=DATE:20250801
 SUMMARY:Reserva: Bernardo Scherman - Colibri
 DESCRIPTION:Huésped: Bernardo Scherman\nCabaña: Colibri\nNoches: 13\nPrecio por noche: $150.0\nTotal: $936000.0\nPagado: $936000.0\nNotas: No estoy segura cuanto pagó
 LOCATION:Colibri - Cabaña
-DTSTAMP:20250803T195626Z
+DTSTAMP:20250804T001308Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -21,7 +21,18 @@ DTEND;VALUE=DATE:20250803
 SUMMARY:Reserva: Nicolás - Colibrí
 DESCRIPTION:Huésped: Nicolás\nCabaña: Colibrí\nNoches: 2\nPrecio por noche: $150.0\nTotal: $160000.0\nPagado: $160000.0
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20250803T195626Z
+DTSTAMP:20250804T001308Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:reservation-Airbnb-Guest-20250803@cabana.com
+DTSTART;VALUE=DATE:20250803
+DTEND;VALUE=DATE:20250804
+SUMMARY:Reserva: Airbnb Guest - Colibri
+DESCRIPTION:Huésped: Airbnb Guest\nCabaña: Colibri\nNoches: 1\nPrecio por noche: $nan\nTotal: $0.0\nPagado: $0.0\nNotas: Airbnb booking - Airbnb (Not available)
+LOCATION:Colibri - Cabaña
+DTSTAMP:20250804T001308Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -32,7 +43,7 @@ DTEND;VALUE=DATE:20250810
 SUMMARY:Reserva: Victor - Colibrí
 DESCRIPTION:Huésped: Victor\nCabaña: Colibrí\nNoches: 2\nPrecio por noche: $150.0\nTotal: $156000.0\nPagado: $156000.0
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20250803T195626Z
+DTSTAMP:20250804T001308Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -43,7 +54,7 @@ DTEND;VALUE=DATE:20250817
 SUMMARY:Reserva: Diego Gustavino - Colibrí
 DESCRIPTION:Huésped: Diego Gustavino\nCabaña: Colibrí\nNoches: 3\nPrecio por noche: $60.0\nTotal: $180.0\nPagado: $0.0\nNotas: Es por booking.
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20250803T195626Z
+DTSTAMP:20250804T001308Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -54,7 +65,18 @@ DTEND;VALUE=DATE:20250922
 SUMMARY:Reserva: Sebastián Piallis - Colibrí
 DESCRIPTION:Huésped: Sebastián Piallis\nCabaña: Colibrí\nNoches: 3\nPrecio por noche: $150.0\nTotal: $180.0\nPagado: $81.0\nNotas: Vienen por Booking
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20250803T195626Z
+DTSTAMP:20250804T001308Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:reservation-Juan-Pepi-20250925@cabana.com
+DTSTART;VALUE=DATE:20250925
+DTEND;VALUE=DATE:20250928
+SUMMARY:Reserva: Juan Pepi - Peperina
+DESCRIPTION:Huésped: Juan Pepi\nCabaña: Peperina\nNoches: 3\nPrecio por noche: $50.0\nTotal: $150.0\nPagado: $0.0
+LOCATION:Peperina - Cabaña
+DTSTAMP:20250804T001308Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
