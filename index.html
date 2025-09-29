@@ -261,40 +261,44 @@
                     day: 'numeric'
                 });
 
-                // Try to extract Pagado and Total values from the DESCRIPTION (robust to formats)
+                // Extract Total and Pagado separately and remove those lines from the details
                 let pagadoDisplay = '';
                 let totalDisplay = '';
                 try {
-                    const pagadoMatch = reservation.description && reservation.description.match(/Pagado:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
-                    if (pagadoMatch) {
-                        const amount = pagadoMatch[1];
-                        const currency = pagadoMatch[2] ? pagadoMatch[2].toUpperCase() : '';
-                        pagadoDisplay = `Pagado: $${amount}${currency ? ' ' + currency : ''}`;
-                    }
+                    if (reservation.description) {
+                        const pagadoMatch = reservation.description.match(/Pagado:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
+                        if (pagadoMatch) {
+                            const amount = pagadoMatch[1];
+                            const currency = pagadoMatch[2] ? pagadoMatch[2].toUpperCase() : '';
+                            pagadoDisplay = `Pagado: $${amount}${currency ? ' ' + currency : ''}`;
+                        }
 
-                    const totalMatch = reservation.description && reservation.description.match(/Total:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
-                    if (totalMatch) {
-                        const amount = totalMatch[1];
-                        const currency = totalMatch[2] ? totalMatch[2].toUpperCase() : '';
-                        totalDisplay = `Total: $${amount}${currency ? ' ' + currency : ''}`;
+                        const totalMatch = reservation.description.match(/Total:\s*\$?\s*([0-9.,]+)\s*(ARS|USD|\w+)?/i);
+                        if (totalMatch) {
+                            const amount = totalMatch[1];
+                            const currency = totalMatch[2] ? totalMatch[2].toUpperCase() : '';
+                            totalDisplay = `Total: $${amount}${currency ? ' ' + currency : ''}`;
+                        }
+
+                        // Remove Total and Pagado lines from details so they aren't duplicated
+                        var detailsClean = reservation.description.replace(/(^|\n)\s*(Total|Pagado)[^\n]*/gi, '');
+                        // Convert remaining newlines to <br> and trim
+                        var detailsHtml = detailsClean.replace(/\n/g, '<br>').trim();
+                    } else {
+                        var detailsHtml = '';
                     }
                 } catch (e) {
-                    // ignore
+                    // fallback to raw description
+                    var detailsHtml = reservation.description ? reservation.description.replace(/\n/g, '<br>') : '';
                 }
-
-                // If we didn't find a Pagado value, fall back to the raw description
-                const detailsHtml = reservation.description
-                    ? reservation.description.replace(/\n/g, '<br>')
-                    : '';
 
                 return `
                     <div class="reservation-item">
                         <h4>${reservation.summary}</h4>
                         <p><strong>📅 Dates:</strong> ${formattedStart} - ${formattedEnd}</p>
                         <p><strong>ℹ️ Details:</strong> ${detailsHtml}</p>
-                        ${pagadoDisplay || totalDisplay ? `
-                            <p><strong>💰 ${totalDisplay ? totalDisplay : ''}${(pagadoDisplay && totalDisplay) ? ' • ' : ''}${pagadoDisplay ? pagadoDisplay : ''}</strong></p>
-                        ` : ''}
+                        ${totalDisplay ? `<p><strong>💵 ${totalDisplay}</strong></p>` : ''}
+                        ${pagadoDisplay ? `<p><strong>💰 ${pagadoDisplay}</strong></p>` : ''}
                     </div>
                 `;
             }).join('');
