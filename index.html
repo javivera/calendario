@@ -53,6 +53,27 @@
     </div>
 
     <script>
+        console.log('DEBUG: script loaded');
+
+        // create a small visible debug panel so we can see status without opening DevTools
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'debug-panel';
+        Object.assign(debugPanel.style, {
+            position: 'fixed',
+            bottom: '8px',
+            right: '8px',
+            background: '#fff',
+            padding: '6px',
+            border: '1px solid #ccc',
+            zIndex: 9999,
+            fontSize: '12px',
+            maxWidth: '360px',
+            maxHeight: '220px',
+            overflow: 'auto'
+        });
+        debugPanel.textContent = 'DEBUG: script loaded';
+        document.addEventListener('DOMContentLoaded', function() { document.body.appendChild(debugPanel); });
+
         // Calendar functionality
         let reservations = [];
         let cabinOccupancy = new Map(); // Map to track which cabins are occupied on each date
@@ -60,6 +81,11 @@
 
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', function() {
+            try {
+                debugPanel.textContent = 'DEBUG: DOMContentLoaded - starting loadReservations';
+            } catch (e) {
+                console.log('DEBUG: cannot access debugPanel yet', e);
+            }
             loadReservations();
             generateCalendar();
             setupNavigation();
@@ -79,13 +105,32 @@
 
         async function loadReservations() {
             try {
+                console.log('DEBUG: starting fetch calendar.ics');
+                if (debugPanel) debugPanel.textContent = 'DEBUG: fetching calendar.ics...';
+
                 const response = await fetch('./calendar.ics');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+
                 const icsData = await response.text();
+                console.log('DEBUG: fetched calendar.ics (length):', icsData.length);
+                if (debugPanel) debugPanel.textContent = 'DEBUG: fetched calendar.ics (length): ' + icsData.length;
+                console.log('DEBUG: fetched calendar.ics (preview):', icsData.slice(0, 2000));
+
                 parseICSData(icsData);
+
+                console.log('DEBUG: parsed reservations count:', reservations.length);
+                if (debugPanel) debugPanel.textContent = 'DEBUG: parsed reservations count: ' + reservations.length;
+                console.log('DEBUG: parsed reservations preview:', reservations.map(r => ({ summary: r.summary, description: r.description && r.description.slice(0,200) })));
+
                 displayReservations();
                 generateCalendar();
+
+                if (debugPanel) debugPanel.textContent = 'DEBUG: displayReservations complete - showing ' + Math.min(3, reservations.length) + ' items';
             } catch (error) {
                 console.error('Error loading calendar:', error);
+                if (debugPanel) debugPanel.textContent = 'DEBUG: fetch error: ' + (error && error.message);
                 document.getElementById('reservations-container').innerHTML = 
                     '<div class="error">Error loading reservations. Please check if calendar.ics exists.</div>';
             }
@@ -216,11 +261,40 @@
                     day: 'numeric'
                 });
 
+                // Try to extract Pagado and Total values from the DESCRIPTION (robust to formats)
+                let pagadoDisplay = '';
+                let totalDisplay = '';
+                try {
+                    const pagadoMatch = reservation.description && reservation.description.match(/Pagado:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
+                    if (pagadoMatch) {
+                        const amount = pagadoMatch[1];
+                        const currency = pagadoMatch[2] ? pagadoMatch[2].toUpperCase() : '';
+                        pagadoDisplay = `Pagado: $${amount}${currency ? ' ' + currency : ''}`;
+                    }
+
+                    const totalMatch = reservation.description && reservation.description.match(/Total:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
+                    if (totalMatch) {
+                        const amount = totalMatch[1];
+                        const currency = totalMatch[2] ? totalMatch[2].toUpperCase() : '';
+                        totalDisplay = `Total: $${amount}${currency ? ' ' + currency : ''}`;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+
+                // If we didn't find a Pagado value, fall back to the raw description
+                const detailsHtml = reservation.description
+                    ? reservation.description.replace(/\n/g, '<br>')
+                    : '';
+
                 return `
                     <div class="reservation-item">
                         <h4>${reservation.summary}</h4>
                         <p><strong>📅 Dates:</strong> ${formattedStart} - ${formattedEnd}</p>
-                        <p><strong>ℹ️ Details:</strong> ${reservation.description.replace(/\n/g, '<br>')}</p>
+                        <p><strong>ℹ️ Details:</strong> ${detailsHtml}</p>
+                        ${pagadoDisplay || totalDisplay ? `
+                            <p><strong>💰 ${totalDisplay ? totalDisplay : ''}${(pagadoDisplay && totalDisplay) ? ' • ' : ''}${pagadoDisplay ? pagadoDisplay : ''}</strong></p>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
