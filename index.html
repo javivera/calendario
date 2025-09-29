@@ -270,7 +270,8 @@
                         if (pagadoMatch) {
                             const amount = pagadoMatch[1];
                             const currency = pagadoMatch[2] ? pagadoMatch[2].toUpperCase() : '';
-                            pagadoDisplay = `Pagado: $${amount}${currency ? ' ' + currency : ''}`;
+                            // Display as 'Reserva' per request
+                            pagadoDisplay = `Reserva: $${amount}${currency ? ' ' + currency : ''}`;
                         }
 
                         const totalMatch = reservation.description.match(/Total:\s*\$?\s*([0-9.,]+)\s*(ARS|USD|\w+)?/i);
@@ -297,8 +298,8 @@
                         <h4>${reservation.summary}</h4>
                         <p><strong>📅 Dates:</strong> ${formattedStart} - ${formattedEnd}</p>
                         <p><strong>ℹ️ Details:</strong> ${detailsHtml}</p>
-                        ${totalDisplay ? `<p><strong>💵 ${totalDisplay}</strong></p>` : ''}
-                        ${pagadoDisplay ? `<p><strong>💰 ${pagadoDisplay}</strong></p>` : ''}
+                        ${totalDisplay ? `<p><strong> ${totalDisplay}</strong></p>` : ''}
+                        ${pagadoDisplay ? `<p><strong> ${pagadoDisplay}</strong></p>` : ''}
                     </div>
                 `;
             }).join('');
