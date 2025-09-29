@@ -8,9 +8,9 @@ UID:reservation-Juan-Manuel-20251010@cabana.com
 DTSTART;VALUE=DATE:20251010
 DTEND;VALUE=DATE:20251012
 SUMMARY:Reserva: Juan Manuel - Peperina
-DESCRIPTION:Huésped: Juan Manuel\nCabaña: Peperina\nNoches: 2.0\nTotal: $0.0\nPagado: $0.0 USD
+DESCRIPTION:Huésped: Juan Manuel\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $85000.0 ARS\nTotal: $170000.0 ARS\nPagado: $0.0 USD
 LOCATION:Peperina - Cabaña
-DTSTAMP:20250929T200425Z
+DTSTAMP:20250929T201334Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
