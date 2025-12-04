@@ -10,7 +10,7 @@ DTEND;VALUE=DATE:20251012
 SUMMARY:Reserva: Juan Manuel - Peperina
 DESCRIPTION:Huésped: Juan Manuel\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $85000.0 ARS\nTotal: $170000.0 ARS\nPagado: $0.0 USD
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -21,7 +21,7 @@ DTEND;VALUE=DATE:20251116
 SUMMARY:Reserva: Gimena - Peperina
 DESCRIPTION:Huésped: Gimena\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $75000.0 ARS\nTotal: $150000.0 ARS\nPagado: $75000.0 ARS
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -32,29 +32,7 @@ DTEND;VALUE=DATE:20251124
 SUMMARY:Reserva: Reserved - Peperina
 DESCRIPTION:Huésped: Reserved\nCabaña: Peperina\nNoches: 4.0\nPrecio por noche: $nan USD\nTotal: $246.0 USD\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-END:VEVENT
-BEGIN:VEVENT
-UID:reservation-Reserved-20251206@cabana.com
-DTSTART;VALUE=DATE:20251206
-DTEND;VALUE=DATE:20251208
-SUMMARY:Reserva: Reserved - Peperina
-DESCRIPTION:Huésped: Reserved\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $nan USD\nTotal: $0.0 USD\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
-LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-END:VEVENT
-BEGIN:VEVENT
-UID:reservation-Alicia-20251224@cabana.com
-DTSTART;VALUE=DATE:20251224
-DTEND;VALUE=DATE:20251226
-SUMMARY:Reserva: Alicia - Peperina
-DESCRIPTION:Huésped: Alicia\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $90000.0 ARS\nTotal: $180000.0 ARS\nPagado: $0.0 USD
-LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -65,29 +43,18 @@ DTEND;VALUE=DATE:20260106
 SUMMARY:Reserva: Cristian - Peperina
 DESCRIPTION:Huésped: Cristian\nCabaña: Peperina\nNoches: 8.0\nPrecio por noche: $80000.0 ARS\nTotal: $640000.0 ARS\nPagado: $320000.0 ARS
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
 BEGIN:VEVENT
-UID:reservation-Caro-20260108@cabana.com
-DTSTART;VALUE=DATE:20260108
-DTEND;VALUE=DATE:20260115
-SUMMARY:Reserva: Caro - Peperina
-DESCRIPTION:Huésped: Caro\nCabaña: Peperina\nNoches: 7.0\nPrecio por noche: $80000.0 ARS\nTotal: $560000.0 ARS\nPagado: $0.0 USD
+UID:reservation-Alicia-20251224@cabana.com
+DTSTART;VALUE=DATE:20251224
+DTEND;VALUE=DATE:20251226
+SUMMARY:Reserva: Alicia - Peperina
+DESCRIPTION:Huésped: Alicia\nCabaña: Peperina\nNoches: 2.0\nPrecio por noche: $90000.0 ARS\nTotal: $180000.0 ARS\nPagado: $0.0 USD
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-END:VEVENT
-BEGIN:VEVENT
-UID:reservation-Mar-y-Sol-20260115@cabana.com
-DTSTART;VALUE=DATE:20260115
-DTEND;VALUE=DATE:20260122
-SUMMARY:Reserva: Mar y Sol - Peperina
-DESCRIPTION:Huésped: Mar y Sol\nCabaña: Peperina\nNoches: 7.0\nPrecio por noche: $80000.0 ARS\nTotal: $560000.0 ARS\nPagado: $280000.0 ARS
-LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -98,18 +65,40 @@ DTEND;VALUE=DATE:20260126
 SUMMARY:Reserva: Natalia Risi - Peperina
 DESCRIPTION:Huésped: Natalia Risi\nCabaña: Peperina\nNoches: 4.0\nPrecio por noche: $0.0 USD\nTotal: $0.0 USD\nPagado: $0.0 USD
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
 BEGIN:VEVENT
 UID:reservation-Griselda-20260201@cabana.com
 DTSTART;VALUE=DATE:20260201
-DTEND;VALUE=DATE:20260208
+DTEND;VALUE=DATE:20260211
 SUMMARY:Reserva: Griselda - Peperina
-DESCRIPTION:Huésped: Griselda\nCabaña: Peperina\nNoches: 7.0\nPrecio por noche: $80000.0 ARS\nTotal: $560000.0 ARS\nPagado: $0.0 USD
+DESCRIPTION:Huésped: Griselda\nCabaña: Peperina\nNoches: 10.0\nPrecio por noche: $80000.0 ARS\nTotal: $800000.0 ARS\nPagado: $0.0 USD
 LOCATION:Peperina - Cabaña
-DTSTAMP:20251203T205332Z
+DTSTAMP:20251203T212232Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:reservation-Mar-y-Sol-20260115@cabana.com
+DTSTART;VALUE=DATE:20260115
+DTEND;VALUE=DATE:20260122
+SUMMARY:Reserva: Mar y Sol - Peperina
+DESCRIPTION:Huésped: Mar y Sol\nCabaña: Peperina\nNoches: 7.0\nPrecio por noche: $80000.0 ARS\nTotal: $560000.0 ARS\nPagado: $280000.0 ARS
+LOCATION:Peperina - Cabaña
+DTSTAMP:20251203T212232Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:reservation-Caro-20260108@cabana.com
+DTSTART;VALUE=DATE:20260108
+DTEND;VALUE=DATE:20260115
+SUMMARY:Reserva: Caro - Peperina
+DESCRIPTION:Huésped: Caro\nCabaña: Peperina\nNoches: 7.0\nPrecio por noche: $80000.0 ARS\nTotal: $560000.0 ARS\nPagado: $0.0 USD
+LOCATION:Peperina - Cabaña
+DTSTAMP:20251203T212232Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
