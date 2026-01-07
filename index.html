@@ -224,7 +224,7 @@
             const container = document.getElementById('reservations-container');
 
             if (reservations.length === 0) {
-                container.innerHTML = '<div class="loading">No reservations found.</div>';
+                container.innerHTML = '<div class="loading">No hay reservas encontradas.</div>';
                 return;
             }
 
@@ -243,7 +243,7 @@
                 .slice(0, 10);
 
             if (sortedReservations.length === 0) {
-                container.innerHTML = '<div class="loading">No upcoming reservations.</div>';
+                container.innerHTML = '<div class="loading">No hay próximas reservas.</div>';
                 return;
             }
 
@@ -252,23 +252,42 @@
                 const startDate = new Date(reservation.startDate);
                 const endDate = new Date(reservation.endDate);
 
-                // Format: Jan 7
+                // Format: 7 Ene
                 const options = { month: 'short', day: 'numeric' };
-                const formattedStart = startDate.toLocaleDateString('en-US', options);
-                const formattedEnd = endDate.toLocaleDateString('en-US', options);
+                const formattedStart = startDate.toLocaleDateString('es-ES', options);
+                const formattedEnd = endDate.toLocaleDateString('es-ES', options);
 
                 // Add animation delay for snappy entrance
                 const style = `animation-delay: ${index * 0.05}s`;
 
+                // Determine border color based on cabin if known (simple logic)
+                const isColibri = reservation.description && (reservation.description.toLowerCase().includes('colibri') || reservation.description.toLowerCase().includes('colib'));
+                const isPeperina = reservation.description && reservation.description.toLowerCase().includes('peperina');
+
+                let cabinClass = '';
+                if (isColibri) cabinClass = 'border-colibri';
+                else if (isPeperina) cabinClass = 'border-peperina';
+
                 return `
-                    <div class="reservation-compact-item" style="${style}">
-                        <div class="res-main">
+                    <div class="reservation-compact-item ${cabinClass}" style="${style}">
+                        <div class="res-content">
                             <span class="res-name">${reservation.summary}</span>
+                            <div class="res-footer">
+                                <span class="res-cabin-badge ${isColibri ? 'badge-colibri' : (isPeperina ? 'badge-peperina' : '')}">
+                                    ${isColibri ? 'Colibrí' : (isPeperina ? 'Peperina' : 'Cabaña')}
+                                </span>
+                            </div>
                         </div>
-                        <div class="res-dates">
-                            <span class="date-pill in">${formattedStart}</span>
-                            <span class="date-arrow">→</span>
-                            <span class="date-pill out">${formattedEnd}</span>
+                        <div class="res-dates-block">
+                            <div class="date-group">
+                                <span class="date-label">Llegada</span>
+                                <span class="date-value">${formattedStart}</span>
+                            </div>
+                            <div class="date-separator"></div>
+                            <div class="date-group">
+                                <span class="date-label">Salida</span>
+                                <span class="date-value">${formattedEnd}</span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -279,10 +298,10 @@
 
         function generateCalendar() {
             const monthNames = [
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
             ];
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
             // Set header
             document.getElementById('current-month').textContent =
@@ -333,13 +352,13 @@
 
                     if (hasColibri && hasPeperina) {
                         dayElement.classList.add('both-occupied');
-                        dayElement.title = 'Both cabins are occupied';
+                        dayElement.title = 'Ambas ocupadas';
                     } else if (hasColibri) {
                         dayElement.classList.add('colibri-only');
-                        dayElement.title = 'Colibrí cabin is occupied';
+                        dayElement.title = 'Colibrí ocupada';
                     } else if (hasPeperina) {
                         dayElement.classList.add('peperina-only');
-                        dayElement.title = 'Peperina cabin is occupied';
+                        dayElement.title = 'Peperina ocupada';
                     }
                 }
 
