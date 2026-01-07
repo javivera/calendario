@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cabañas Las Chacras</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>🏡 Cabañas Las Chacras</h1>
-        
+
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color legend-available"></div>
@@ -42,7 +44,7 @@
                 </div>
                 <div class="calendar-grid" id="current-calendar"></div>
             </div>
-            
+
             <div class="reservations-list">
                 <h2>📋 Reservas</h2>
                 <div id="reservations-container">
@@ -72,7 +74,7 @@
             overflow: 'auto'
         });
         debugPanel.textContent = 'DEBUG: script loaded';
-        document.addEventListener('DOMContentLoaded', function() { document.body.appendChild(debugPanel); });
+        document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(debugPanel); });
 
         // Calendar functionality
         let reservations = [];
@@ -80,7 +82,7 @@
         let currentDate = new Date();
 
         // Initialize calendar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             try {
                 debugPanel.textContent = 'DEBUG: DOMContentLoaded - starting loadReservations';
             } catch (e) {
@@ -92,12 +94,12 @@
         });
 
         function setupNavigation() {
-            document.getElementById('prev-month').addEventListener('click', function() {
+            document.getElementById('prev-month').addEventListener('click', function () {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 generateCalendar();
             });
 
-            document.getElementById('next-month').addEventListener('click', function() {
+            document.getElementById('next-month').addEventListener('click', function () {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 generateCalendar();
             });
@@ -122,7 +124,7 @@
 
                 console.log('DEBUG: parsed reservations count:', reservations.length);
                 if (debugPanel) debugPanel.textContent = 'DEBUG: parsed reservations count: ' + reservations.length;
-                console.log('DEBUG: parsed reservations preview:', reservations.map(r => ({ summary: r.summary, description: r.description && r.description.slice(0,200) })));
+                console.log('DEBUG: parsed reservations preview:', reservations.map(r => ({ summary: r.summary, description: r.description && r.description.slice(0, 200) })));
 
                 displayReservations();
                 generateCalendar();
@@ -131,7 +133,7 @@
             } catch (error) {
                 console.error('Error loading calendar:', error);
                 if (debugPanel) debugPanel.textContent = 'DEBUG: fetch error: ' + (error && error.message);
-                document.getElementById('reservations-container').innerHTML = 
+                document.getElementById('reservations-container').innerHTML =
                     '<div class="error">Error loading reservations. Please check if calendar.ics exists.</div>';
             }
         }
@@ -143,7 +145,7 @@
 
             for (let line of lines) {
                 line = line.trim();
-                
+
                 if (line === 'BEGIN:VEVENT') {
                     currentEvent = {};
                 } else if (line === 'END:VEVENT' && currentEvent) {
@@ -152,7 +154,7 @@
                 } else if (currentEvent) {
                     const [key, ...valueParts] = line.split(':');
                     const value = valueParts.join(':');
-                    
+
                     if (key === 'DTSTART;VALUE=DATE') {
                         currentEvent.startDate = parseICSDate(value);
                     } else if (key === 'DTEND;VALUE=DATE') {
@@ -166,13 +168,13 @@
             }
 
             reservations = events;
-            
+
             // Generate cabin occupancy data
             cabinOccupancy.clear();
             events.forEach(event => {
                 const start = new Date(event.startDate);
                 const end = new Date(event.endDate);
-                
+
                 // Extract cabin name from description
                 let cabinName = 'unknown';
                 if (event.description) {
@@ -181,7 +183,7 @@
                         cabinName = cabinMatch[1].trim().toLowerCase();
                     }
                 }
-                
+
                 // Normalize cabin names
                 if (cabinName.includes('colibr') || cabinName.includes('colib')) {
                     cabinName = 'colibri';
@@ -190,15 +192,15 @@
                 } else if (cabinName.includes('airbnb')) {
                     cabinName = 'airbnb'; // Treat airbnb as occupying both
                 }
-                
+
                 // Add all dates from start to end (excluding end date)
                 for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
                     const dateString = d.toISOString().split('T')[0];
-                    
+
                     if (!cabinOccupancy.has(dateString)) {
                         cabinOccupancy.set(dateString, new Set());
                     }
-                    
+
                     if (cabinName === 'airbnb') {
                         // Airbnb reservations occupy both cabins
                         cabinOccupancy.get(dateString).add('colibri');
@@ -220,7 +222,7 @@
 
         function displayReservations() {
             const container = document.getElementById('reservations-container');
-            
+
             if (reservations.length === 0) {
                 container.innerHTML = '<div class="loading">No reservations found.</div>';
                 return;
@@ -235,76 +237,44 @@
                 return endDate >= today;
             });
 
-            // Sort by start date and take only the next 3
+            // Sort by start date and take only the next 10
             const sortedReservations = upcomingReservations
                 .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-                .slice(0, 3);
+                .slice(0, 10);
 
             if (sortedReservations.length === 0) {
                 container.innerHTML = '<div class="loading">No upcoming reservations.</div>';
                 return;
             }
 
-            const html = sortedReservations.map(reservation => {
+            // Create a wrapper for grid layout
+            const html = sortedReservations.map((reservation, index) => {
                 const startDate = new Date(reservation.startDate);
                 const endDate = new Date(reservation.endDate);
-                const formattedStart = startDate.toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-                const formattedEnd = endDate.toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
 
-                // Extract Total and Pagado separately and remove those lines from the details
-                let pagadoDisplay = '';
-                let totalDisplay = '';
-                try {
-                    if (reservation.description) {
-                        const pagadoMatch = reservation.description.match(/Pagado:\s*\$?\s*([0-9.,]+)\s*(\w+)?/i);
-                        if (pagadoMatch) {
-                            const amount = pagadoMatch[1];
-                            const currency = pagadoMatch[2] ? pagadoMatch[2].toUpperCase() : '';
-                            // Display as 'Reserva' per request
-                            pagadoDisplay = `Reserva: $${amount}${currency ? ' ' + currency : ''}`;
-                        }
+                // Format: Jan 7
+                const options = { month: 'short', day: 'numeric' };
+                const formattedStart = startDate.toLocaleDateString('en-US', options);
+                const formattedEnd = endDate.toLocaleDateString('en-US', options);
 
-                        const totalMatch = reservation.description.match(/Total:\s*\$?\s*([0-9.,]+)\s*(ARS|USD|\w+)?/i);
-                        if (totalMatch) {
-                            const amount = totalMatch[1];
-                            const currency = totalMatch[2] ? totalMatch[2].toUpperCase() : '';
-                            totalDisplay = `Total: $${amount}${currency ? ' ' + currency : ''}`;
-                        }
-
-                        // Remove Total and Pagado lines from details so they aren't duplicated
-                        var detailsClean = reservation.description.replace(/(^|\n)\s*(Total|Pagado)[^\n]*/gi, '');
-                        // Convert remaining newlines to <br> and trim
-                        var detailsHtml = detailsClean.replace(/\n/g, '<br>').trim();
-                    } else {
-                        var detailsHtml = '';
-                    }
-                } catch (e) {
-                    // fallback to raw description
-                    var detailsHtml = reservation.description ? reservation.description.replace(/\n/g, '<br>') : '';
-                }
+                // Add animation delay for snappy entrance
+                const style = `animation-delay: ${index * 0.05}s`;
 
                 return `
-                    <div class="reservation-item">
-                        <h4>${reservation.summary}</h4>
-                        <p><strong>📅 Dates:</strong> ${formattedStart} - ${formattedEnd}</p>
-                        <p><strong>ℹ️ Details:</strong> ${detailsHtml}</p>
-                        ${totalDisplay ? `<p><strong> ${totalDisplay}</strong></p>` : ''}
-                        ${pagadoDisplay ? `<p><strong> ${pagadoDisplay}</strong></p>` : ''}
+                    <div class="reservation-compact-item" style="${style}">
+                        <div class="res-main">
+                            <span class="res-name">${reservation.summary}</span>
+                        </div>
+                        <div class="res-dates">
+                            <span class="date-pill in">${formattedStart}</span>
+                            <span class="date-arrow">→</span>
+                            <span class="date-pill out">${formattedEnd}</span>
+                        </div>
                     </div>
                 `;
             }).join('');
 
-            container.innerHTML = html;
+            container.innerHTML = `<div class="compact-list-container">${html}</div>`;
         }
 
         function generateCalendar() {
@@ -315,7 +285,7 @@
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
             // Set header
-            document.getElementById('current-month').textContent = 
+            document.getElementById('current-month').textContent =
                 `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
             // Generate calendar grid
@@ -360,7 +330,7 @@
                 if (occupiedCabins && occupiedCabins.size > 0) {
                     const hasColibri = occupiedCabins.has('colibri');
                     const hasPeperina = occupiedCabins.has('peperina');
-                    
+
                     if (hasColibri && hasPeperina) {
                         dayElement.classList.add('both-occupied');
                         dayElement.title = 'Both cabins are occupied';
@@ -393,4 +363,5 @@
         }
     </script>
 </body>
+
 </html>

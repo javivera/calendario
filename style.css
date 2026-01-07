@@ -210,29 +210,84 @@ h1 {
 
 .reservations-list {
     grid-column: 1 / -1;
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background: #fff;
+    border-radius: 12px;
+    padding: 0;
+    margin-top: 10px;
 }
 
-.reservation-item {
-    background: white;
-    padding: 15px;
-    margin-bottom: 10px;
+.reservations-list h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.4em;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Compact snappy list */
+.compact-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reservation-compact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 16px;
     border-radius: 8px;
     border-left: 4px solid #3498db;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0;
+    animation: slideIn 0.4s forwards ease-out;
 }
 
-.reservation-item h4 {
-    margin: 0 0 10px 0;
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.reservation-compact-item:hover {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateX(2px) scale(1.01);
+    border-left-width: 6px;
+}
+
+.res-main {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
     color: #2c3e50;
+    font-size: 0.95em;
+    padding-right: 15px;
 }
 
-.reservation-item p {
-    margin: 5px 0;
-    color: #7f8c8d;
+.res-dates {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85em;
+    color: #666;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid #eef0f2;
+    min-width: max-content;
+}
+
+.date-pill {
+    font-weight: 500;
+}
+
+.date-arrow {
+    color: #ccc;
+    font-size: 0.9em;
 }
 
 .loading {
