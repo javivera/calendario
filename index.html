@@ -264,30 +264,25 @@
                 const isColibri = reservation.description && (reservation.description.toLowerCase().includes('colibri') || reservation.description.toLowerCase().includes('colib'));
                 const isPeperina = reservation.description && reservation.description.toLowerCase().includes('peperina');
 
-                let cabinClass = '';
-                if (isColibri) cabinClass = 'border-colibri';
-                else if (isPeperina) cabinClass = 'border-peperina';
+                let cabinClass = 'badge-default';
+                let cabinName = 'Cabaña';
+                if (isColibri) { cabinClass = 'badge-colibri'; cabinName = 'Colibrí'; }
+                else if (isPeperina) { cabinClass = 'badge-peperina'; cabinName = 'Peperina'; }
+
+                // Clean up name (remove 'Reserva:' prefix if present and take first part)
+                let cleanName = reservation.summary.replace(/^Reserva:\s*/i, '');
+                // Optional: Truncate very long names if needed, though CSS handles ellipsis
 
                 return `
-                    <div class="reservation-compact-item ${cabinClass}" style="${style}">
-                        <div class="res-content">
-                            <span class="res-name">${reservation.summary}</span>
-                            <div class="res-footer">
-                                <span class="res-cabin-badge ${isColibri ? 'badge-colibri' : (isPeperina ? 'badge-peperina' : '')}">
-                                    ${isColibri ? 'Colibrí' : (isPeperina ? 'Peperina' : 'Cabaña')}
-                                </span>
+                    <div class="reservation-row" style="${style}">
+                        <div class="res-left">
+                            <span class="res-name" title="${cleanName}">${cleanName}</span>
+                            <div class="res-tags">
+                                <span class="res-cabin-badge ${cabinClass}">${cabinName}</span>
                             </div>
                         </div>
-                        <div class="res-dates-block">
-                            <div class="date-group">
-                                <span class="date-label">Llegada</span>
-                                <span class="date-value">${formattedStart}</span>
-                            </div>
-                            <div class="date-separator"></div>
-                            <div class="date-group">
-                                <span class="date-label">Salida</span>
-                                <span class="date-value">${formattedEnd}</span>
-                            </div>
+                        <div class="res-right">
+                            <span class="date-text">${formattedStart} - ${formattedEnd}</span>
                         </div>
                     </div>
                 `;
