@@ -9,7 +9,30 @@
 </head>
 
 <body>
-    <div class="container">
+    <!-- Menu Toggle Button -->
+    <button class="menu-toggle" onclick="toggleMenu()" id="menu-toggle">☰</button>
+
+    <!-- Side Menu -->
+    <div class="side-menu" id="side-menu">
+        <div class="menu-title">🏠 Cabañas Las Chacras</div>
+        <a href="index.html" class="menu-item active">
+            <span class="menu-icon">📅</span>
+            <span class="menu-text">Calendario General</span>
+        </a>
+        <a href="cabin-view.html" class="menu-item">
+            <span class="menu-icon">🏡</span>
+            <span class="menu-text">Vista por Cabaña</span>
+        </a>
+        <a href="finances.html" class="menu-item">
+            <span class="menu-icon">💰</span>
+            <span class="menu-text">Panel Financiero</span>
+        </a>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+
+    <div class="container content-wrapper">
         <h1>🏡 Cabañas Las Chacras</h1>
 
         <div class="legend">
@@ -528,8 +551,22 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal();
+                if (document.getElementById('side-menu').classList.contains('open')) {
+                    toggleMenu();
+                }
             }
         });
+
+        // Menu functions
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            const overlay = document.getElementById('menu-overlay');
+            const toggle = document.getElementById('menu-toggle');
+            
+            menu.classList.toggle('open');
+            overlay.classList.toggle('open');
+            toggle.innerHTML = menu.classList.contains('open') ? '✕' : '☰';
+        }
     </script>
 </body>
 

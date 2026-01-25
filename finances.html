@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabañas Las Chacras - Finanzas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Back link - hidden, using side menu instead */
+        .back-link {
+            display: none;
+        }
+
+        /* Side Menu */
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            padding: 80px 20px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-title {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .menu-item.active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .menu-item .menu-icon {
+            font-size: 1.3rem;
+        }
+
+        .menu-item .menu-text {
+            font-weight: 500;
+        }
+
+        .content-wrapper {
+            padding-top: 20px;
+        }
+
+        /* Page title */
+        .page-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .page-title span {
+            color: #4caf50;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .amount {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .summary-card .amount.positive {
+            color: #4caf50;
+        }
+
+        .summary-card .amount.pending {
+            color: #ff9800;
+        }
+
+        .summary-card .amount.usd {
+            color: #2196f3;
+        }
+
+        .summary-card .sub-amount {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 5px;
+        }
+
+        /* Main content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Sections */
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Monthly chart */
+        .monthly-chart {
+            grid-column: 1 / -1;
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 200px;
+            padding: 10px 0;
+            overflow-x: auto;
+        }
+
+        .chart-bar {
+            flex: 1;
+            min-width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bar-wrapper {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .bar {
+            width: 70%;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+
+        .bar.income {
+            background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+        }
+
+        .bar.projected {
+            background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+            opacity: 0.5;
+            border: 1px dashed #4caf50;
+        }
+
+        .bar-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .bar-amount {
+            font-size: 0.7rem;
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        /* Upcoming payments */
+        .payment-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .payment-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .payment-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .payment-guest {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .payment-dates {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .payment-cabin {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 3px;
+        }
+
+        .payment-cabin.colibri {
+            background: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+        }
+
+        .payment-cabin.peperina {
+            background: rgba(156, 39, 176, 0.3);
+            color: #ce93d8;
+        }
+
+        .payment-amounts {
+            text-align: right;
+        }
+
+        .payment-total {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .payment-total.ars {
+            color: #4caf50;
+        }
+
+        .payment-total.usd {
+            color: #2196f3;
+        }
+
+        .payment-pending {
+            font-size: 0.8rem;
+            color: #ff9800;
+        }
+
+        .payment-paid {
+            font-size: 0.8rem;
+            color: #4caf50;
+        }
+
+        /* Currency toggle */
+        .currency-toggle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .currency-btn {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .currency-btn.active {
+            background: #4caf50;
+            color: #fff;
+        }
+
+        .currency-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Monthly breakdown */
+        .monthly-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .monthly-item.current {
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .monthly-item.past {
+            opacity: 0.7;
+        }
+
+        .month-name {
+            font-weight: 600;
+        }
+
+        .month-amount {
+            font-weight: 700;
+            color: #4caf50;
+        }
+
+        .month-reservations {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .summary-card .amount {
+                font-size: 1.3rem;
+            }
+
+            .chart-bar {
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Menu Toggle Button -->
+    <button class="menu-toggle" onclick="toggleMenu()" id="menu-toggle">☰</button>
+
+    <!-- Side Menu -->
+    <div class="side-menu" id="side-menu">
+        <div class="menu-title">🏠 Cabañas Las Chacras</div>
+        <a href="index.html" class="menu-item">
+            <span class="menu-icon">📅</span>
+            <span class="menu-text">Calendario General</span>
+        </a>
+        <a href="cabin-view.html" class="menu-item">
+            <span class="menu-icon">🏡</span>
+            <span class="menu-text">Vista por Cabaña</span>
+        </a>
+        <a href="finances.html" class="menu-item active">
+            <span class="menu-icon">💰</span>
+            <span class="menu-text">Panel Financiero</span>
+        </a>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+
+    <div class="container content-wrapper">
+        <h1 class="page-title">💰 Panel <span>Financiero</span></h1>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>📥 Total Cobrado</h3>
+                <div class="amount positive" id="total-collected-ars">$0</div>
+                <div class="sub-amount" id="total-collected-usd">+ $0 USD</div>
+            </div>
+            <div class="summary-card">
+                <h3>⏳ Pendiente de Cobro</h3>
+                <div class="amount pending" id="total-pending-ars">$0</div>
+                <div class="sub-amount" id="total-pending-usd">+ $0 USD</div>
+            </div>
+            <div class="summary-card">
+                <h3>📊 Total Proyectado</h3>
+                <div class="amount positive" id="total-projected-ars">$0</div>
+                <div class="sub-amount" id="total-projected-usd">+ $0 USD</div>
+            </div>
+            <div class="summary-card">
+                <h3>🏠 Reservas Activas</h3>
+                <div class="amount" id="active-reservations">0</div>
+                <div class="sub-amount" id="upcoming-reservations">0 próximas</div>
+            </div>
+        </div>
+
+        <!-- Monthly Chart -->
+        <div class="section monthly-chart">
+            <h2>📈 Ingresos Mensuales</h2>
+            <div class="currency-toggle">
+                <button class="currency-btn active" onclick="setChartCurrency('ARS')">ARS</button>
+                <button class="currency-btn" onclick="setChartCurrency('USD')">USD</button>
+            </div>
+            <div class="chart-container" id="chart-container"></div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Upcoming Payments -->
+            <div class="section">
+                <h2>💵 Próximos Ingresos</h2>
+                <div class="payment-list" id="upcoming-payments"></div>
+            </div>
+
+            <!-- Monthly Breakdown -->
+            <div class="section">
+                <h2>📅 Desglose por Mes</h2>
+                <div class="currency-toggle">
+                    <button class="currency-btn active" onclick="setBreakdownCurrency('ARS')" id="breakdown-ars-btn">ARS</button>
+                    <button class="currency-btn" onclick="setBreakdownCurrency('USD')" id="breakdown-usd-btn">USD</button>
+                </div>
+                <div id="monthly-breakdown"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let reservations = [];
+        let chartCurrency = 'ARS';
+        let breakdownCurrency = 'ARS';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReservations();
+        });
+
+        async function loadReservations() {
+            try {
+                const response = await fetch('../data/reservations.csv');
+                if (!response.ok) throw new Error('Network error');
+                const csvData = await response.text();
+                parseCSV(csvData);
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading reservations:', error);
+            }
+        }
+
+        function parseCSV(csvData) {
+            const lines = csvData.trim().split('\n');
+            const headers = lines[0].split(',');
+            
+            reservations = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                if (values.length >= headers.length) {
+                    const reservation = {};
+                    headers.forEach((header, index) => {
+                        reservation[header.trim()] = values[index] ? values[index].trim() : '';
+                    });
+                    reservations.push(reservation);
+                }
+            }
+        }
+
+        function updateDashboard() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let totalCollectedARS = 0;
+            let totalCollectedUSD = 0;
+            let totalPendingARS = 0;
+            let totalPendingUSD = 0;
+            let totalProjectedARS = 0;
+            let totalProjectedUSD = 0;
+            let activeCount = 0;
+            let upcomingCount = 0;
+
+            const upcomingPayments = [];
+            const monthlyData = {};
+
+            reservations.forEach(res => {
+                const checkIn = new Date(res.check_in_dates);
+                const checkOut = new Date(res.check_out_dates);
+                checkIn.setHours(0, 0, 0, 0);
+                checkOut.setHours(0, 0, 0, 0);
+
+                // Get amounts
+                const totalARS = parseFloat(res.reservation_total_ARS) || 0;
+                const paidARS = parseFloat(res.reservation_payed_ARS) || 0;
+                const totalUSD = parseFloat(res.reservation_total) || 0;
+                const paidUSD = parseFloat(res.reservation_payed) || 0;
+
+                // Calculate totals
+                totalCollectedARS += paidARS;
+                totalCollectedUSD += paidUSD;
+                totalProjectedARS += totalARS;
+                totalProjectedUSD += totalUSD;
+
+                // Check if upcoming or active
+                if (checkOut >= today) {
+                    if (checkIn <= today) {
+                        activeCount++;
+                    } else {
+                        upcomingCount++;
+                    }
+
+                    // Pending amounts
+                    const pendingARS = totalARS - paidARS;
+                    const pendingUSD = totalUSD - paidUSD;
+                    totalPendingARS += Math.max(0, pendingARS);
+                    totalPendingUSD += Math.max(0, pendingUSD);
+
+                    // Add to upcoming payments
+                    if (checkIn >= today || checkIn <= today && checkOut >= today) {
+                        upcomingPayments.push({
+                            guest: res.guest_names,
+                            checkIn: checkIn,
+                            checkOut: checkOut,
+                            cabin: res.cabin,
+                            totalARS: totalARS,
+                            paidARS: paidARS,
+                            totalUSD: totalUSD,
+                            paidUSD: paidUSD
+                        });
+                    }
+                }
+
+                // Monthly breakdown (use check-in month)
+                const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { ars: 0, usd: 0, count: 0 };
+                }
+                monthlyData[monthKey].ars += totalARS;
+                monthlyData[monthKey].usd += totalUSD;
+                monthlyData[monthKey].count++;
+            });
+
+            // Update summary cards
+            document.getElementById('total-collected-ars').textContent = formatARS(totalCollectedARS);
+            document.getElementById('total-collected-usd').textContent = `+ ${formatUSD(totalCollectedUSD)}`;
+            document.getElementById('total-pending-ars').textContent = formatARS(totalPendingARS);
+            document.getElementById('total-pending-usd').textContent = `+ ${formatUSD(totalPendingUSD)}`;
+            document.getElementById('total-projected-ars').textContent = formatARS(totalProjectedARS);
+            document.getElementById('total-projected-usd').textContent = `+ ${formatUSD(totalProjectedUSD)}`;
+            document.getElementById('active-reservations').textContent = activeCount;
+            document.getElementById('upcoming-reservations').textContent = `${upcomingCount} próximas`;
+
+            // Render upcoming payments
+            renderUpcomingPayments(upcomingPayments);
+
+            // Render monthly breakdown
+            renderMonthlyBreakdown(monthlyData);
+
+            // Render chart
+            renderChart(monthlyData);
+        }
+
+        function renderUpcomingPayments(payments) {
+            const container = document.getElementById('upcoming-payments');
+            
+            // Sort by check-in date
+            payments.sort((a, b) => a.checkIn - b.checkIn);
+
+            if (payments.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">No hay pagos pendientes</div>';
+                return;
+            }
+
+            const html = payments.map(p => {
+                const dateOpts = { day: 'numeric', month: 'short' };
+                const checkInStr = p.checkIn.toLocaleDateString('es-ES', dateOpts);
+                const checkOutStr = p.checkOut.toLocaleDateString('es-ES', dateOpts);
+                
+                const cabinClass = p.cabin.toLowerCase().includes('colibr') ? 'colibri' : 'peperina';
+                const cabinName = p.cabin.toLowerCase().includes('colibr') ? 'Colibrí' : 'Peperina';
+
+                const hasARS = p.totalARS > 0;
+                const hasUSD = p.totalUSD > 0;
+                const pendingARS = p.totalARS - p.paidARS;
+                const pendingUSD = p.totalUSD - p.paidUSD;
+
+                let amountHtml = '';
+                if (hasARS) {
+                    amountHtml += `<div class="payment-total ars">${formatARS(p.totalARS)}</div>`;
+                    if (pendingARS > 0) {
+                        amountHtml += `<div class="payment-pending">Pendiente: ${formatARS(pendingARS)}</div>`;
+                    } else {
+                        amountHtml += `<div class="payment-paid">✓ Pagado</div>`;
+                    }
+                } else if (hasUSD) {
+                    amountHtml += `<div class="payment-total usd">${formatUSD(p.totalUSD)}</div>`;
+                    if (pendingUSD > 0) {
+                        amountHtml += `<div class="payment-pending">Pendiente: ${formatUSD(pendingUSD)}</div>`;
+                    } else {
+                        amountHtml += `<div class="payment-paid">✓ Pagado</div>`;
+                    }
+                } else {
+                    amountHtml += `<div class="payment-total" style="color:rgba(255,255,255,0.5)">Sin precio</div>`;
+                }
+
+                return `
+                    <div class="payment-item">
+                        <div class="payment-info">
+                            <span class="payment-guest">${p.guest}</span>
+                            <span class="payment-dates">📅 ${checkInStr} → ${checkOutStr}</span>
+                            <span class="payment-cabin ${cabinClass}">${cabinName}</span>
+                        </div>
+                        <div class="payment-amounts">
+                            ${amountHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderMonthlyBreakdown(monthlyData) {
+            const container = document.getElementById('monthly-breakdown');
+            const today = new Date();
+            const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+            // Sort months
+            const sortedMonths = Object.keys(monthlyData).sort();
+
+            const monthNames = {
+                '01': 'Enero', '02': 'Febrero', '03': 'Marzo', '04': 'Abril',
+                '05': 'Mayo', '06': 'Junio', '07': 'Julio', '08': 'Agosto',
+                '09': 'Septiembre', '10': 'Octubre', '11': 'Noviembre', '12': 'Diciembre'
+            };
+
+            const html = sortedMonths.map(monthKey => {
+                const [year, month] = monthKey.split('-');
+                const data = monthlyData[monthKey];
+                const isCurrent = monthKey === currentMonthKey;
+                const isPast = monthKey < currentMonthKey;
+
+                const amount = breakdownCurrency === 'ARS' ? formatARS(data.ars) : formatUSD(data.usd);
+
+                return `
+                    <div class="monthly-item ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''}">
+                        <div>
+                            <div class="month-name">${monthNames[month]} ${year}</div>
+                            <div class="month-reservations">${data.count} reserva${data.count !== 1 ? 's' : ''}</div>
+                        </div>
+                        <div class="month-amount">${amount}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderChart(monthlyData) {
+            const container = document.getElementById('chart-container');
+            const today = new Date();
+            const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            
+            // Find max value for scaling
+            let maxValue = 0;
+            sortedMonths.forEach(key => {
+                const val = chartCurrency === 'ARS' ? monthlyData[key].ars : monthlyData[key].usd;
+                if (val > maxValue) maxValue = val;
+            });
+
+            const monthNames = {
+                '01': 'Ene', '02': 'Feb', '03': 'Mar', '04': 'Abr',
+                '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+                '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dic'
+            };
+
+            const html = sortedMonths.map(monthKey => {
+                const [year, month] = monthKey.split('-');
+                const data = monthlyData[monthKey];
+                const value = chartCurrency === 'ARS' ? data.ars : data.usd;
+                const height = maxValue > 0 ? (value / maxValue) * 130 : 0;
+                const isProjected = monthKey >= currentMonthKey;
+
+                const formattedAmount = chartCurrency === 'ARS' 
+                    ? (value >= 1000000 ? `${(value/1000000).toFixed(1)}M` : `${Math.round(value/1000)}k`)
+                    : `$${Math.round(value)}`;
+
+                return `
+                    <div class="chart-bar">
+                        <div class="bar-wrapper">
+                            <div class="bar-amount">${formattedAmount}</div>
+                            <div class="bar ${isProjected ? 'projected' : 'income'}" style="height: ${Math.max(height, 5)}px;"></div>
+                        </div>
+                        <div class="bar-label">${monthNames[month]}<br>${year.slice(2)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function setChartCurrency(currency) {
+            chartCurrency = currency;
+            document.querySelectorAll('.monthly-chart .currency-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === currency);
+            });
+            // Re-render chart
+            const monthlyData = calculateMonthlyData();
+            renderChart(monthlyData);
+        }
+
+        function setBreakdownCurrency(currency) {
+            breakdownCurrency = currency;
+            document.getElementById('breakdown-ars-btn').classList.toggle('active', currency === 'ARS');
+            document.getElementById('breakdown-usd-btn').classList.toggle('active', currency === 'USD');
+            // Re-render breakdown
+            const monthlyData = calculateMonthlyData();
+            renderMonthlyBreakdown(monthlyData);
+        }
+
+        function calculateMonthlyData() {
+            const monthlyData = {};
+            reservations.forEach(res => {
+                const checkIn = new Date(res.check_in_dates);
+                const totalARS = parseFloat(res.reservation_total_ARS) || 0;
+                const totalUSD = parseFloat(res.reservation_total) || 0;
+
+                const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { ars: 0, usd: 0, count: 0 };
+                }
+                monthlyData[monthKey].ars += totalARS;
+                monthlyData[monthKey].usd += totalUSD;
+                monthlyData[monthKey].count++;
+            });
+            return monthlyData;
+        }
+
+        function formatARS(amount) {
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatUSD(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Menu functions
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            const overlay = document.getElementById('menu-overlay');
+            const toggle = document.getElementById('menu-toggle');
+            
+            menu.classList.toggle('open');
+            overlay.classList.toggle('open');
+            toggle.innerHTML = menu.classList.contains('open') ? '✕' : '☰';
+        }
+
+        // Close menu with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('side-menu').classList.contains('open')) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+
+</html></html>
