@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabañas Las Chacras - Vista por Cabaña</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Cabin Selector */
+        .cabin-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cabin-btn {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cabin-btn-colibri {
+            background: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+            border: 2px solid #4caf50;
+        }
+
+        .cabin-btn-colibri:hover,
+        .cabin-btn-colibri.active {
+            background: rgba(76, 175, 80, 0.8);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .cabin-btn-peperina {
+            background: rgba(156, 39, 176, 0.3);
+            color: #ce93d8;
+            border: 2px solid #9c27b0;
+        }
+
+        .cabin-btn-peperina:hover,
+        .cabin-btn-peperina.active {
+            background: rgba(156, 39, 176, 0.8);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
+        }
+
+        .cabin-btn .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-header {
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .day-cell:hover {
+            transform: scale(1.05);
+        }
+
+        .day-cell.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        .day-cell.today {
+            border: 2px solid #fff;
+            font-weight: 700;
+        }
+
+        /* Colibri theme */
+        .theme-colibri .day-cell.occupied {
+            background: rgba(76, 175, 80, 0.6);
+            color: #fff;
+        }
+
+        .theme-colibri .day-cell.checkin .entrada-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: #ffab40;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .theme-colibri .day-cell.checkout .salida-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: #ffab40;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Peperina theme */
+        .theme-peperina .day-cell.occupied {
+            background: rgba(156, 39, 176, 0.6);
+            color: #fff;
+        }
+
+        .theme-peperina .day-cell.checkin .entrada-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: #ffab40;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .theme-peperina .day-cell.checkout .salida-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: #ffab40;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+        }
+
+        .theme-colibri .legend-color.occupied {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        .theme-peperina .legend-color.occupied {
+            background: rgba(156, 39, 176, 0.8);
+        }
+
+        .theme-colibri .legend-color.checkin-out {
+            background: #ffab40;
+        }
+
+        .theme-peperina .legend-color.checkin-out {
+            background: #ffab40;
+        }
+
+        /* Reservations Section */
+        .reservations-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            align-self: start;
+        }
+
+        .reservations-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-colibri .reservations-section h3 {
+            color: #81c784;
+        }
+
+        .theme-peperina .reservations-section h3 {
+            color: #ce93d8;
+        }
+
+        .reservation-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .reservation-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .theme-colibri .reservation-card {
+            border-left: 3px solid #4caf50;
+        }
+
+        .theme-peperina .reservation-card {
+            border-left: 3px solid #9c27b0;
+        }
+
+        .res-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .res-dates {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .res-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .res-status.active {
+            background: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+        }
+
+        .res-status.upcoming {
+            background: rgba(33, 150, 243, 0.3);
+            color: #64b5f6;
+        }
+
+        .no-reservations {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 30px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-reservation {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .modal-res-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .modal-res-dates {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .checkin-badge {
+            background: rgba(0, 188, 212, 0.3);
+            color: #00bcd4;
+        }
+
+        .checkout-badge {
+            background: rgba(255, 171, 64, 0.3);
+            color: #ffab40;
+        }
+
+        .modal-empty {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .reservations-section {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+
+            .calendar-section {
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            .calendar-grid {
+                gap: 3px;
+            }
+
+            .calendar-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .cabin-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            .cabin-btn .icon {
+                font-size: 1rem;
+            }
+
+            .day-cell {
+                font-size: 0.85rem;
+            }
+
+            .entrada-bar, .salida-bar {
+                font-size: 7px !important;
+                height: 14px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Volver a vista general</a>
+
+        <!-- Cabin Selector -->
+        <div class="cabin-selector">
+            <button class="cabin-btn cabin-btn-colibri active" onclick="selectCabin('colibri')">
+                <span class="icon">🐦</span>
+                <span>Colibrí</span>
+            </button>
+            <button class="cabin-btn cabin-btn-peperina" onclick="selectCabin('peperina')">
+                <span class="icon">🌿</span>
+                <span>Peperina</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content theme-colibri" id="main-content">
+            <!-- Calendar -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <button class="nav-btn" id="prev-month">❮</button>
+                    <h2 id="current-month"></h2>
+                    <button class="nav-btn" id="next-month">❯</button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <!-- Reservations -->
+            <div class="reservations-section">
+                <h3 id="reservations-title">🐦 Reservas Colibrí</h3>
+                <div id="reservations-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="day-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Reservas</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        let reservations = [];
+        let currentDate = new Date();
+        let selectedCabin = 'colibri';
+        let cabinData = {
+            colibri: { occupancy: new Set(), checkIn: new Set(), checkOut: new Set(), reservations: [] },
+            peperina: { occupancy: new Set(), checkIn: new Set(), checkOut: new Set(), reservations: [] }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReservations();
+            setupNavigation();
+        });
+
+        function setupNavigation() {
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                generateCalendar();
+            });
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                generateCalendar();
+            });
+        }
+
+        function selectCabin(cabin) {
+            selectedCabin = cabin;
+            
+            // Update button states
+            document.querySelectorAll('.cabin-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.cabin-btn-${cabin}`).classList.add('active');
+            
+            // Update theme
+            const mainContent = document.getElementById('main-content');
+            mainContent.classList.remove('theme-colibri', 'theme-peperina');
+            mainContent.classList.add(`theme-${cabin}`);
+            
+            // Update reservations title
+            const title = document.getElementById('reservations-title');
+            if (cabin === 'colibri') {
+                title.innerHTML = '🐦 Reservas Colibrí';
+            } else {
+                title.innerHTML = '🌿 Reservas Peperina';
+            }
+            
+            // Regenerate calendar and reservations
+            generateCalendar();
+            displayReservations();
+        }
+
+        async function loadReservations() {
+            try {
+                const response = await fetch('./calendar.ics');
+                if (!response.ok) throw new Error('Network error');
+                const icsData = await response.text();
+                parseICSData(icsData);
+                generateCalendar();
+                displayReservations();
+            } catch (error) {
+                console.error('Error loading calendar:', error);
+            }
+        }
+
+        function parseICSData(icsData) {
+            const events = [];
+            const lines = icsData.split('\n');
+            let currentEvent = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line === 'BEGIN:VEVENT') {
+                    currentEvent = {};
+                } else if (line === 'END:VEVENT') {
+                    if (currentEvent && currentEvent.startDate && currentEvent.endDate) {
+                        events.push(currentEvent);
+                    }
+                    currentEvent = null;
+                } else if (currentEvent) {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex > 0) {
+                        let key = line.substring(0, colonIndex);
+                        const value = line.substring(colonIndex + 1);
+                        key = key.split(';')[0];
+
+                        if (key === 'DTSTART') {
+                            currentEvent.startDate = parseICSDate(value);
+                        } else if (key === 'DTEND') {
+                            currentEvent.endDate = parseICSDate(value);
+                        } else if (key === 'SUMMARY') {
+                            currentEvent.summary = value;
+                        } else if (key === 'DESCRIPTION') {
+                            currentEvent.description = value.replace(/\\n/g, '\n');
+                        }
+                    }
+                }
+            }
+
+            reservations = events;
+
+            // Reset cabin data
+            cabinData.colibri = { occupancy: new Set(), checkIn: new Set(), checkOut: new Set(), reservations: [] };
+            cabinData.peperina = { occupancy: new Set(), checkIn: new Set(), checkOut: new Set(), reservations: [] };
+
+            events.forEach(event => {
+                const start = event.startDate;
+                const end = event.endDate;
+
+                let cabinName = 'unknown';
+                if (event.description) {
+                    const cabinMatch = event.description.match(/Cabaña:\s*([^\n\\]+)/i);
+                    if (cabinMatch) {
+                        cabinName = cabinMatch[1].trim().toLowerCase();
+                    }
+                }
+
+                if (cabinName.includes('colibr') || cabinName.includes('colib')) {
+                    cabinName = 'colibri';
+                } else if (cabinName.includes('peperina')) {
+                    cabinName = 'peperina';
+                }
+
+                if (cabinName === 'colibri' || cabinName === 'peperina') {
+                    const cabin = cabinData[cabinName];
+                    
+                    const startString = start.getFullYear() + '-' + 
+                        String(start.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(start.getDate()).padStart(2, '0');
+                    const endString = end.getFullYear() + '-' + 
+                        String(end.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(end.getDate()).padStart(2, '0');
+
+                    cabin.checkIn.add(startString);
+                    cabin.checkOut.add(endString);
+                    cabin.reservations.push(event);
+
+                    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+                        const dateString = d.getFullYear() + '-' + 
+                            String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(d.getDate()).padStart(2, '0');
+                        cabin.occupancy.add(dateString);
+                    }
+                }
+            });
+        }
+
+        function parseICSDate(dateString) {
+            const year = parseInt(dateString.substring(0, 4));
+            const month = parseInt(dateString.substring(4, 6)) - 1;
+            const day = parseInt(dateString.substring(6, 8));
+            return new Date(year, month, day);
+        }
+
+        function generateCalendar() {
+            const monthNames = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+            document.getElementById('current-month').textContent =
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+            const gridElement = document.getElementById('calendar-grid');
+            gridElement.innerHTML = '';
+
+            // Day headers
+            dayNames.forEach(dayName => {
+                const headerEl = document.createElement('div');
+                headerEl.className = 'day-header';
+                headerEl.textContent = dayName;
+                gridElement.appendChild(headerEl);
+            });
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const cabin = cabinData[selectedCabin];
+
+            // Empty cells
+            for (let i = 0; i < firstDay; i++) {
+                const emptyEl = document.createElement('div');
+                emptyEl.className = 'day-cell empty';
+                gridElement.appendChild(emptyEl);
+            }
+
+            // Day cells
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDate = new Date(year, month, day);
+                const dateString = dayDate.getFullYear() + '-' + 
+                    String(dayDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(dayDate.getDate()).padStart(2, '0');
+
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day-cell';
+                dayEl.innerHTML = `<span>${day}</span>`;
+
+                if (dayDate.getTime() === today.getTime()) {
+                    dayEl.classList.add('today');
+                }
+
+                const isOccupied = cabin.occupancy.has(dateString);
+                const isCheckIn = cabin.checkIn.has(dateString);
+                const isCheckOut = cabin.checkOut.has(dateString);
+
+                if (isOccupied) {
+                    dayEl.classList.add('occupied');
+                }
+
+                if (isCheckIn) {
+                    dayEl.classList.add('checkin');
+                    const entradaBar = document.createElement('div');
+                    entradaBar.className = 'entrada-bar';
+                    entradaBar.textContent = 'Entrada';
+                    dayEl.appendChild(entradaBar);
+                }
+
+                if (isCheckOut) {
+                    dayEl.classList.add('checkout');
+                    const salidaBar = document.createElement('div');
+                    salidaBar.className = 'salida-bar';
+                    salidaBar.textContent = 'Salida';
+                    dayEl.appendChild(salidaBar);
+                }
+
+                dayEl.addEventListener('click', () => showDayReservations(dateString, dayDate));
+                gridElement.appendChild(dayEl);
+            }
+        }
+
+        function displayReservations() {
+            const container = document.getElementById('reservations-container');
+            const cabin = cabinData[selectedCabin];
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const upcomingReservations = cabin.reservations.filter(res => {
+                const endDate = res.endDate;
+                const endDateNormalized = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+                return endDateNormalized >= today;
+            }).sort((a, b) => a.startDate - b.startDate);
+
+            if (upcomingReservations.length === 0) {
+                container.innerHTML = '<div class="no-reservations">No hay próximas reservas</div>';
+                return;
+            }
+
+            const html = upcomingReservations.map(res => {
+                const startDate = res.startDate;
+                const endDate = res.endDate;
+                const opts = { day: 'numeric', month: 'short' };
+                const formattedStart = startDate.toLocaleDateString('es-ES', opts);
+                const formattedEnd = endDate.toLocaleDateString('es-ES', opts);
+                const cleanName = res.summary.replace(/^Reserva:\s*/i, '');
+
+                // Check if active or upcoming
+                const startNorm = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                const isActive = startNorm <= today;
+                const status = isActive ? 'active' : 'upcoming';
+                const statusText = isActive ? 'En curso' : 'Próxima';
+
+                return `
+                    <div class="reservation-card">
+                        <div class="res-name">${cleanName}</div>
+                        <div class="res-dates">📅 ${formattedStart} → ${formattedEnd}</div>
+                        <span class="res-status ${status}">${statusText}</span>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function showDayReservations(dateString, dayDate) {
+            const modal = document.getElementById('day-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const formattedDate = dayDate.toLocaleDateString('es-ES', options);
+            modalTitle.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+            const cabin = cabinData[selectedCabin];
+            const [year, month, day] = dateString.split('-').map(Number);
+            const clickedDate = new Date(year, month - 1, day, 12, 0, 0, 0);
+
+            const dayReservations = cabin.reservations.filter(res => {
+                const start = res.startDate;
+                const end = res.endDate;
+                const clickedTime = clickedDate.getTime();
+                const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0).getTime();
+                const endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999).getTime();
+                return clickedTime >= startTime && clickedTime <= endTime;
+            });
+
+            if (dayReservations.length === 0) {
+                modalBody.innerHTML = '<div class="modal-empty">No hay reservas para este día</div>';
+            } else {
+                const html = dayReservations.map(res => {
+                    const startDate = res.startDate;
+                    const endDate = res.endDate;
+                    const dateOpts = { day: 'numeric', month: 'short' };
+                    const formattedStart = startDate.toLocaleDateString('es-ES', dateOpts);
+                    const formattedEnd = endDate.toLocaleDateString('es-ES', dateOpts);
+
+                    let statusBadges = '';
+                    const startStr = startDate.getFullYear() + '-' + 
+                        String(startDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(startDate.getDate()).padStart(2, '0');
+                    const endStr = endDate.getFullYear() + '-' + 
+                        String(endDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(endDate.getDate()).padStart(2, '0');
+
+                    if (startStr === dateString) {
+                        statusBadges += '<span class="status-badge checkin-badge">Check-in</span>';
+                    }
+                    if (endStr === dateString) {
+                        statusBadges += '<span class="status-badge checkout-badge">Check-out</span>';
+                    }
+
+                    const cleanName = res.summary.replace(/^Reserva:\s*/i, '');
+
+                    return `
+                        <div class="modal-reservation">
+                            <div class="modal-res-name">${cleanName}${statusBadges}</div>
+                            <div class="modal-res-dates">📅 ${formattedStart} → ${formattedEnd}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                modalBody.innerHTML = html;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('day-modal').style.display = 'none';
+        }
+
+        document.getElementById('day-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+
+</html>
