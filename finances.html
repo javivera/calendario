@@ -145,12 +145,44 @@
         .page-title {
             text-align: center;
             font-size: 1.8rem;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             color: #fff;
         }
 
         .page-title span {
             color: #4caf50;
+        }
+
+        /* Global Currency Toggle */
+        .global-currency-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .global-currency-toggle .currency-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .global-currency-toggle .currency-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .global-currency-toggle .currency-btn.active {
+            background: #4caf50;
+            color: #fff;
+            border-color: #4caf50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
         }
 
         /* Summary Cards */
@@ -485,37 +517,27 @@
     <div class="container content-wrapper">
         <h1 class="page-title">💰 Panel <span>Financiero</span></h1>
 
+        <!-- Global Currency Toggle -->
+        <div class="global-currency-toggle">
+            <button class="currency-btn active" onclick="setGlobalCurrency('ARS')" id="global-ars-btn">🇦🇷 ARS</button>
+            <button class="currency-btn" onclick="setGlobalCurrency('USD')" id="global-usd-btn">🇺🇸 USD</button>
+        </div>
+
         <!-- Summary Cards -->
         <div class="summary-cards">
             <div class="summary-card">
-                <h3>📥 Total Cobrado</h3>
-                <div class="amount positive" id="total-collected-ars">$0</div>
-                <div class="sub-amount" id="total-collected-usd">+ $0 USD</div>
+                <h3>📥 Total Cobrado (2026)</h3>
+                <div class="amount positive" id="total-collected">$0</div>
             </div>
             <div class="summary-card">
-                <h3>⏳ Pendiente de Cobro</h3>
-                <div class="amount pending" id="total-pending-ars">$0</div>
-                <div class="sub-amount" id="total-pending-usd">+ $0 USD</div>
-            </div>
-            <div class="summary-card">
-                <h3>📊 Total Proyectado</h3>
-                <div class="amount positive" id="total-projected-ars">$0</div>
-                <div class="sub-amount" id="total-projected-usd">+ $0 USD</div>
-            </div>
-            <div class="summary-card">
-                <h3>🏠 Reservas Activas</h3>
-                <div class="amount" id="active-reservations">0</div>
-                <div class="sub-amount" id="upcoming-reservations">0 próximas</div>
+                <h3>📊 Proyectado</h3>
+                <div class="amount pending" id="total-projected">$0</div>
             </div>
         </div>
 
         <!-- Monthly Chart -->
         <div class="section monthly-chart">
             <h2>📈 Ingresos Mensuales</h2>
-            <div class="currency-toggle">
-                <button class="currency-btn active" onclick="setChartCurrency('ARS')">ARS</button>
-                <button class="currency-btn" onclick="setChartCurrency('USD')">USD</button>
-            </div>
             <div class="chart-container" id="chart-container"></div>
         </div>
 
@@ -530,10 +552,6 @@
             <!-- Monthly Breakdown -->
             <div class="section">
                 <h2>📅 Desglose por Mes</h2>
-                <div class="currency-toggle">
-                    <button class="currency-btn active" onclick="setBreakdownCurrency('ARS')" id="breakdown-ars-btn">ARS</button>
-                    <button class="currency-btn" onclick="setBreakdownCurrency('USD')" id="breakdown-usd-btn">USD</button>
-                </div>
                 <div id="monthly-breakdown"></div>
             </div>
         </div>
@@ -541,8 +559,15 @@
 
     <script>
         let reservations = [];
-        let chartCurrency = 'ARS';
-        let breakdownCurrency = 'ARS';
+        let globalCurrency = 'ARS';
+        
+        // Store totals globally for currency switching
+        let totals = {
+            ytdARS: 0, ytdUSD: 0,
+            projectedARS: 0, projectedUSD: 0
+        };
+        let upcomingPaymentsData = [];
+        let monthlyDataGlobal = {};
 
         document.addEventListener('DOMContentLoaded', function() {
             loadReservations();
@@ -554,7 +579,8 @@
                 if (!response.ok) throw new Error('Network error');
                 const csvData = await response.text();
                 parseCSV(csvData);
-                updateDashboard();
+                calculateData();
+                renderAll();
             } catch (error) {
                 console.error('Error loading reservations:', error);
             }
@@ -577,21 +603,17 @@
             }
         }
 
-        function updateDashboard() {
+        function calculateData() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+            const currentYear = today.getFullYear();
 
-            let totalCollectedARS = 0;
-            let totalCollectedUSD = 0;
-            let totalPendingARS = 0;
-            let totalPendingUSD = 0;
-            let totalProjectedARS = 0;
-            let totalProjectedUSD = 0;
-            let activeCount = 0;
-            let upcomingCount = 0;
-
-            const upcomingPayments = [];
-            const monthlyData = {};
+            totals = {
+                ytdARS: 0, ytdUSD: 0,
+                projectedARS: 0, projectedUSD: 0
+            };
+            upcomingPaymentsData = [];
+            monthlyDataGlobal = {};
 
             reservations.forEach(res => {
                 const checkIn = new Date(res.check_in_dates);
@@ -599,79 +621,75 @@
                 checkIn.setHours(0, 0, 0, 0);
                 checkOut.setHours(0, 0, 0, 0);
 
-                // Get amounts
+                // Get amounts (assume full payment = reservation_total)
                 const totalARS = parseFloat(res.reservation_total_ARS) || 0;
-                const paidARS = parseFloat(res.reservation_payed_ARS) || 0;
                 const totalUSD = parseFloat(res.reservation_total) || 0;
-                const paidUSD = parseFloat(res.reservation_payed) || 0;
 
-                // Calculate totals
-                totalCollectedARS += paidARS;
-                totalCollectedUSD += paidUSD;
-                totalProjectedARS += totalARS;
-                totalProjectedUSD += totalUSD;
-
-                // Check if upcoming or active
-                if (checkOut >= today) {
-                    if (checkIn <= today) {
-                        activeCount++;
-                    } else {
-                        upcomingCount++;
-                    }
-
-                    // Pending amounts
-                    const pendingARS = totalARS - paidARS;
-                    const pendingUSD = totalUSD - paidUSD;
-                    totalPendingARS += Math.max(0, pendingARS);
-                    totalPendingUSD += Math.max(0, pendingUSD);
-
-                    // Add to upcoming payments
-                    if (checkIn >= today || checkIn <= today && checkOut >= today) {
-                        upcomingPayments.push({
-                            guest: res.guest_names,
-                            checkIn: checkIn,
-                            checkOut: checkOut,
-                            cabin: res.cabin,
-                            totalARS: totalARS,
-                            paidARS: paidARS,
-                            totalUSD: totalUSD,
-                            paidUSD: paidUSD
-                        });
-                    }
+                // Year-to-date: reservations with check-in in current year that already started
+                if (checkIn.getFullYear() === currentYear && checkIn <= today) {
+                    totals.ytdARS += totalARS;
+                    totals.ytdUSD += totalUSD;
                 }
 
-                // Monthly breakdown (use check-in month)
-                const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = { ars: 0, usd: 0, count: 0 };
+                // Projected: future reservations (check-in after today)
+                if (checkIn > today) {
+                    totals.projectedARS += totalARS;
+                    totals.projectedUSD += totalUSD;
+
+                    // Add to upcoming payments list
+                    upcomingPaymentsData.push({
+                        guest: res.guest_names,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        cabin: res.cabin,
+                        totalARS: totalARS,
+                        totalUSD: totalUSD
+                    });
                 }
-                monthlyData[monthKey].ars += totalARS;
-                monthlyData[monthKey].usd += totalUSD;
-                monthlyData[monthKey].count++;
+
+                // Monthly breakdown (use check-in month) - only current year
+                if (checkIn.getFullYear() === currentYear) {
+                    const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
+                    if (!monthlyDataGlobal[monthKey]) {
+                        monthlyDataGlobal[monthKey] = { ars: 0, usd: 0, count: 0 };
+                    }
+                    monthlyDataGlobal[monthKey].ars += totalARS;
+                    monthlyDataGlobal[monthKey].usd += totalUSD;
+                    monthlyDataGlobal[monthKey].count++;
+                }
             });
-
-            // Update summary cards
-            document.getElementById('total-collected-ars').textContent = formatARS(totalCollectedARS);
-            document.getElementById('total-collected-usd').textContent = `+ ${formatUSD(totalCollectedUSD)}`;
-            document.getElementById('total-pending-ars').textContent = formatARS(totalPendingARS);
-            document.getElementById('total-pending-usd').textContent = `+ ${formatUSD(totalPendingUSD)}`;
-            document.getElementById('total-projected-ars').textContent = formatARS(totalProjectedARS);
-            document.getElementById('total-projected-usd').textContent = `+ ${formatUSD(totalProjectedUSD)}`;
-            document.getElementById('active-reservations').textContent = activeCount;
-            document.getElementById('upcoming-reservations').textContent = `${upcomingCount} próximas`;
-
-            // Render upcoming payments
-            renderUpcomingPayments(upcomingPayments);
-
-            // Render monthly breakdown
-            renderMonthlyBreakdown(monthlyData);
-
-            // Render chart
-            renderChart(monthlyData);
         }
 
-        function renderUpcomingPayments(payments) {
+        function renderAll() {
+            renderSummaryCards();
+            renderUpcomingPayments();
+            renderMonthlyBreakdown();
+            renderChart();
+            updateToggleButtons();
+        }
+
+        function setGlobalCurrency(currency) {
+            globalCurrency = currency;
+            renderAll();
+        }
+
+        function updateToggleButtons() {
+            document.getElementById('global-ars-btn').classList.toggle('active', globalCurrency === 'ARS');
+            document.getElementById('global-usd-btn').classList.toggle('active', globalCurrency === 'USD');
+        }
+
+        function renderSummaryCards() {
+            const format = globalCurrency === 'ARS' ? formatARS : formatUSD;
+            const ytd = globalCurrency === 'ARS' ? totals.ytdARS : totals.ytdUSD;
+            const projected = globalCurrency === 'ARS' ? totals.projectedARS : totals.projectedUSD;
+
+            document.getElementById('total-collected').textContent = format(ytd);
+            document.getElementById('total-projected').textContent = format(projected);
+        }
+
+        function renderUpcomingPayments() {
             const container = document.getElementById('upcoming-payments');
+            const payments = upcomingPaymentsData;
             
             // Sort by check-in date
             payments.sort((a, b) => a.checkIn - b.checkIn);
@@ -681,6 +699,8 @@
                 return;
             }
 
+            const format = globalCurrency === 'ARS' ? formatARS : formatUSD;
+
             const html = payments.map(p => {
                 const dateOpts = { day: 'numeric', month: 'short' };
                 const checkInStr = p.checkIn.toLocaleDateString('es-ES', dateOpts);
@@ -689,26 +709,11 @@
                 const cabinClass = p.cabin.toLowerCase().includes('colibr') ? 'colibri' : 'peperina';
                 const cabinName = p.cabin.toLowerCase().includes('colibr') ? 'Colibrí' : 'Peperina';
 
-                const hasARS = p.totalARS > 0;
-                const hasUSD = p.totalUSD > 0;
-                const pendingARS = p.totalARS - p.paidARS;
-                const pendingUSD = p.totalUSD - p.paidUSD;
+                const total = globalCurrency === 'ARS' ? p.totalARS : p.totalUSD;
 
                 let amountHtml = '';
-                if (hasARS) {
-                    amountHtml += `<div class="payment-total ars">${formatARS(p.totalARS)}</div>`;
-                    if (pendingARS > 0) {
-                        amountHtml += `<div class="payment-pending">Pendiente: ${formatARS(pendingARS)}</div>`;
-                    } else {
-                        amountHtml += `<div class="payment-paid">✓ Pagado</div>`;
-                    }
-                } else if (hasUSD) {
-                    amountHtml += `<div class="payment-total usd">${formatUSD(p.totalUSD)}</div>`;
-                    if (pendingUSD > 0) {
-                        amountHtml += `<div class="payment-pending">Pendiente: ${formatUSD(pendingUSD)}</div>`;
-                    } else {
-                        amountHtml += `<div class="payment-paid">✓ Pagado</div>`;
-                    }
+                if (total > 0) {
+                    amountHtml += `<div class="payment-total">${format(total)}</div>`;
                 } else {
                     amountHtml += `<div class="payment-total" style="color:rgba(255,255,255,0.5)">Sin precio</div>`;
                 }
@@ -730,13 +735,13 @@
             container.innerHTML = html;
         }
 
-        function renderMonthlyBreakdown(monthlyData) {
+        function renderMonthlyBreakdown() {
             const container = document.getElementById('monthly-breakdown');
             const today = new Date();
             const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
             // Sort months
-            const sortedMonths = Object.keys(monthlyData).sort();
+            const sortedMonths = Object.keys(monthlyDataGlobal).sort();
 
             const monthNames = {
                 '01': 'Enero', '02': 'Febrero', '03': 'Marzo', '04': 'Abril',
@@ -744,13 +749,18 @@
                 '09': 'Septiembre', '10': 'Octubre', '11': 'Noviembre', '12': 'Diciembre'
             };
 
+            const format = globalCurrency === 'ARS' ? formatARS : formatUSD;
+
             const html = sortedMonths.map(monthKey => {
                 const [year, month] = monthKey.split('-');
-                const data = monthlyData[monthKey];
+                const data = monthlyDataGlobal[monthKey];
                 const isCurrent = monthKey === currentMonthKey;
                 const isPast = monthKey < currentMonthKey;
 
-                const amount = breakdownCurrency === 'ARS' ? formatARS(data.ars) : formatUSD(data.usd);
+                const amount = globalCurrency === 'ARS' ? data.ars : data.usd;
+                const amountHtml = amount > 0 
+                    ? `<div class="month-amount">${format(amount)}</div>`
+                    : '<div class="month-amount" style="color: rgba(255,255,255,0.4)">-</div>';
 
                 return `
                     <div class="monthly-item ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''}">
@@ -758,7 +768,7 @@
                             <div class="month-name">${monthNames[month]} ${year}</div>
                             <div class="month-reservations">${data.count} reserva${data.count !== 1 ? 's' : ''}</div>
                         </div>
-                        <div class="month-amount">${amount}</div>
+                        <div style="text-align: right;">${amountHtml}</div>
                     </div>
                 `;
             }).join('');
@@ -766,17 +776,17 @@
             container.innerHTML = html;
         }
 
-        function renderChart(monthlyData) {
+        function renderChart() {
             const container = document.getElementById('chart-container');
             const today = new Date();
             const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-            const sortedMonths = Object.keys(monthlyData).sort();
+            const sortedMonths = Object.keys(monthlyDataGlobal).sort();
             
             // Find max value for scaling
             let maxValue = 0;
             sortedMonths.forEach(key => {
-                const val = chartCurrency === 'ARS' ? monthlyData[key].ars : monthlyData[key].usd;
+                const val = globalCurrency === 'ARS' ? monthlyDataGlobal[key].ars : monthlyDataGlobal[key].usd;
                 if (val > maxValue) maxValue = val;
             });
 
@@ -788,13 +798,13 @@
 
             const html = sortedMonths.map(monthKey => {
                 const [year, month] = monthKey.split('-');
-                const data = monthlyData[monthKey];
-                const value = chartCurrency === 'ARS' ? data.ars : data.usd;
+                const data = monthlyDataGlobal[monthKey];
+                const value = globalCurrency === 'ARS' ? data.ars : data.usd;
                 const height = maxValue > 0 ? (value / maxValue) * 130 : 0;
                 const isProjected = monthKey >= currentMonthKey;
 
-                const formattedAmount = chartCurrency === 'ARS' 
-                    ? (value >= 1000000 ? `${(value/1000000).toFixed(1)}M` : `${Math.round(value/1000)}k`)
+                const formattedAmount = globalCurrency === 'ARS' 
+                    ? (value >= 1000000 ? `$${(value/1000000).toFixed(1)}M` : `$${Math.round(value/1000)}k`)
                     : `$${Math.round(value)}`;
 
                 return `
@@ -809,43 +819,6 @@
             }).join('');
 
             container.innerHTML = html;
-        }
-
-        function setChartCurrency(currency) {
-            chartCurrency = currency;
-            document.querySelectorAll('.monthly-chart .currency-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === currency);
-            });
-            // Re-render chart
-            const monthlyData = calculateMonthlyData();
-            renderChart(monthlyData);
-        }
-
-        function setBreakdownCurrency(currency) {
-            breakdownCurrency = currency;
-            document.getElementById('breakdown-ars-btn').classList.toggle('active', currency === 'ARS');
-            document.getElementById('breakdown-usd-btn').classList.toggle('active', currency === 'USD');
-            // Re-render breakdown
-            const monthlyData = calculateMonthlyData();
-            renderMonthlyBreakdown(monthlyData);
-        }
-
-        function calculateMonthlyData() {
-            const monthlyData = {};
-            reservations.forEach(res => {
-                const checkIn = new Date(res.check_in_dates);
-                const totalARS = parseFloat(res.reservation_total_ARS) || 0;
-                const totalUSD = parseFloat(res.reservation_total) || 0;
-
-                const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = { ars: 0, usd: 0, count: 0 };
-                }
-                monthlyData[monthKey].ars += totalARS;
-                monthlyData[monthKey].usd += totalUSD;
-                monthlyData[monthKey].count++;
-            });
-            return monthlyData;
         }
 
         function formatARS(amount) {
@@ -886,4 +859,4 @@
     </script>
 </body>
 
-</html></html>
+</html>

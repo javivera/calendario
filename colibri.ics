@@ -8,9 +8,9 @@ UID:reservation-Pedro-C.-Air-20251230@cabana.com
 DTSTART;VALUE=DATE:20251230
 DTEND;VALUE=DATE:20260104
 SUMMARY:Reserva: Pedro C. Air - Colibri
-DESCRIPTION:Huésped: Pedro C. Air\nCabaña: Colibri\nNoches: 5.0\nPrecio por noche: $73.72 USD\nTotal: $368.6 USD\nPagado: $0.0 USD
+DESCRIPTION:Huésped: Pedro C. Air\nCabaña: Colibri\nNoches: 5.0\nPrecio por noche: $108298.37 ARS\nTotal: $541491.83 ARS\nPagado: $0.0 USD
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -19,9 +19,9 @@ UID:reservation-Leandro-A.-Air-20260104@cabana.com
 DTSTART;VALUE=DATE:20260104
 DTEND;VALUE=DATE:20260114
 SUMMARY:Reserva: Leandro A. Air - Colibri
-DESCRIPTION:Huésped: Leandro A. Air\nCabaña: Colibri\nNoches: 10.0\nPrecio por noche: $63.0 USD\nTotal: $630.5 USD\nPagado: $0.0 USD
+DESCRIPTION:Huésped: Leandro A. Air\nCabaña: Colibri\nNoches: 10.0\nPrecio por noche: $92550.15 ARS\nTotal: $926236.03 ARS\nPagado: $0.0 USD
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -32,7 +32,7 @@ DTEND;VALUE=DATE:20260117
 SUMMARY:Reserva: Lara - Colibri
 DESCRIPTION:Huésped: Lara\nCabaña: Colibri\nNoches: 3.0\nPrecio por noche: $80000.0 ARS\nTotal: $240000.0 ARS\nPagado: $120000.0 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -41,9 +41,9 @@ UID:reservation-Juano-y-Tomás-20260117@cabana.com
 DTSTART;VALUE=DATE:20260117
 DTEND;VALUE=DATE:20260124
 SUMMARY:Reserva: Juano y Tomás - Colibri
-DESCRIPTION:Huésped: Juano y Tomás\nCabaña: Colibri\nNoches: 7.0\nPrecio por noche: $70.0 USD\nTotal: $490.0 USD\nPagado: $147.0 USD
+DESCRIPTION:Huésped: Juano y Tomás\nCabaña: Colibri\nNoches: 7.0\nPrecio por noche: $102833.5 ARS\nTotal: $719834.5 ARS\nPagado: $215950.35 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -52,9 +52,9 @@ UID:reservation-Nora-20260124@cabana.com
 DTSTART;VALUE=DATE:20260124
 DTEND;VALUE=DATE:20260127
 SUMMARY:Reserva: Nora - Colibri
-DESCRIPTION:Huésped: Nora\nCabaña: Colibri\nNoches: 3.0\nTotal: $0.0 USD\nPagado: $70000.0 ARS
+DESCRIPTION:Huésped: Nora\nCabaña: Colibri\nNoches: 3.0\nPrecio por noche: $85327.0 ARS\nTotal: $255982.0 ARS\nPagado: $70000.0 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -63,9 +63,9 @@ UID:reservation-Sofia-20260127@cabana.com
 DTSTART;VALUE=DATE:20260127
 DTEND;VALUE=DATE:20260201
 SUMMARY:Reserva: Sofia - Colibri
-DESCRIPTION:Huésped: Sofia\nCabaña: Colibri\nNoches: 5.0\nTotal: $325.0 USD\nPagado: $134550.0 ARS
+DESCRIPTION:Huésped: Sofia\nCabaña: Colibri\nNoches: 5.0\nPrecio por noche: $95488.25 ARS\nTotal: $477441.25 ARS\nPagado: $134550.0 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -74,20 +74,20 @@ UID:reservation-Alejandro-20260202@cabana.com
 DTSTART;VALUE=DATE:20260202
 DTEND;VALUE=DATE:20260209
 SUMMARY:Reserva: Alejandro - Colibrí
-DESCRIPTION:Huésped: Alejandro\nCabaña: Colibrí\nNoches: 7.0\nPrecio por noche: $65.0 USD\nTotal: $455.0 USD\nPagado: $260.0 USD
+DESCRIPTION:Huésped: Alejandro\nCabaña: Colibrí\nNoches: 7.0\nPrecio por noche: $95488.25 ARS\nTotal: $668417.75 ARS\nPagado: $381953.0 ARS
 LOCATION:Colibrí - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
 BEGIN:VEVENT
-UID:reservation-Reserved-20260209@cabana.com
+UID:reservation-Mirtha-Esther-Air-20260209@cabana.com
 DTSTART;VALUE=DATE:20260209
 DTEND;VALUE=DATE:20260213
-SUMMARY:Reserva: Reserved - Colibri
-DESCRIPTION:Huésped: Reserved\nCabaña: Colibri\nNoches: 4.0\nPrecio por noche: $nan USD\nTotal: $0.0 USD\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
+SUMMARY:Reserva: Mirtha Esther Air - Colibri
+DESCRIPTION:Huésped: Mirtha Esther Air\nCabaña: Colibri\nNoches: 4.0\nPrecio por noche: $82634.06 ARS\nTotal: $330536.25 ARS\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -98,7 +98,7 @@ DTEND;VALUE=DATE:20260216
 SUMMARY:Reserva: Romi - Colibri
 DESCRIPTION:Huésped: Romi\nCabaña: Colibri\nNoches: 3.0\nPrecio por noche: $93000.0 ARS\nTotal: $279000.0 ARS\nPagado: $85000.0 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -107,9 +107,9 @@ UID:reservation-Flor-P.-Air-20260216@cabana.com
 DTSTART;VALUE=DATE:20260216
 DTEND;VALUE=DATE:20260227
 SUMMARY:Reserva: Flor P. Air - Colibri
-DESCRIPTION:Huésped: Flor P. Air\nCabaña: Colibri\nNoches: 11.0\nPrecio por noche: $63.05 USD\nTotal: $693.55 USD\nPagado: $0.0 USD
+DESCRIPTION:Huésped: Flor P. Air\nCabaña: Colibri\nNoches: 11.0\nPrecio por noche: $92623.6 ARS\nTotal: $1018859.63 ARS\nPagado: $0.0 USD
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -120,7 +120,7 @@ DTEND;VALUE=DATE:20260301
 SUMMARY:Reserva: ANSHI - Colibri
 DESCRIPTION:Huésped: ANSHI\nCabaña: Colibri\nNoches: 2.0\nPrecio por noche: $90000.0 ARS\nTotal: $180000.0 ARS\nPagado: $90000.0 ARS
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -131,7 +131,7 @@ DTEND;VALUE=DATE:20260307
 SUMMARY:Reserva: Sharon - Colibri
 DESCRIPTION:Huésped: Sharon\nCabaña: Colibri\nNoches: 4.0\nPrecio por noche: $90000.0 ARS\nTotal: $360000.0 ARS\nPagado: $0.0 USD
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
@@ -142,18 +142,18 @@ DTEND;VALUE=DATE:20260315
 SUMMARY:Reserva: Caro - Colibri
 DESCRIPTION:Huésped: Caro\nCabaña: Colibri\nNoches: 3.0\nPrecio por noche: $80000.0 ARS\nTotal: $240000.0 ARS\nPagado: $0.0 USD
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
 BEGIN:VEVENT
-UID:reservation-Reserved-20260315@cabana.com
+UID:reservation-Gonzalo-Fior-Air-20260315@cabana.com
 DTSTART;VALUE=DATE:20260315
 DTEND;VALUE=DATE:20260319
-SUMMARY:Reserva: Reserved - Colibri
-DESCRIPTION:Huésped: Reserved\nCabaña: Colibri\nNoches: 4.0\nPrecio por noche: $nan USD\nTotal: $0.0 USD\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
+SUMMARY:Reserva: Gonzalo Fior Air - Colibri
+DESCRIPTION:Huésped: Gonzalo Fior Air\nCabaña: Colibri\nNoches: 4.0\nPrecio por noche: $78594.18 ARS\nTotal: $314376.7 ARS\nPagado: $0.0 USD\nNotas: Airbnb booking - Reserved
 LOCATION:Colibri - Cabaña
-DTSTAMP:20260125T194215Z
+DTSTAMP:20260125T204218Z
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
