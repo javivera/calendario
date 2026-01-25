@@ -61,27 +61,6 @@
     </div>
 
     <script>
-        console.log('DEBUG: script loaded');
-
-        // create a small visible debug panel so we can see status without opening DevTools
-        const debugPanel = document.createElement('div');
-        debugPanel.id = 'debug-panel';
-        Object.assign(debugPanel.style, {
-            position: 'fixed',
-            bottom: '8px',
-            right: '8px',
-            background: '#fff',
-            padding: '6px',
-            border: '1px solid #ccc',
-            zIndex: 9999,
-            fontSize: '12px',
-            maxWidth: '360px',
-            maxHeight: '220px',
-            overflow: 'auto'
-        });
-        debugPanel.textContent = 'DEBUG: script loaded';
-        document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(debugPanel); });
-
         // Calendar functionality
         let reservations = [];
         let cabinOccupancy = new Map(); // Map to track which cabins are occupied on each date
@@ -93,11 +72,6 @@
 
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', function () {
-            try {
-                debugPanel.textContent = 'DEBUG: DOMContentLoaded - starting loadReservations';
-            } catch (e) {
-                console.log('DEBUG: cannot access debugPanel yet', e);
-            }
             loadReservations();
             generateCalendar();
             setupNavigation();
@@ -117,32 +91,17 @@
 
         async function loadReservations() {
             try {
-                console.log('DEBUG: starting fetch calendar.ics');
-                if (debugPanel) debugPanel.textContent = 'DEBUG: fetching calendar.ics...';
-
                 const response = await fetch('./calendar.ics');
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.status);
                 }
 
                 const icsData = await response.text();
-                console.log('DEBUG: fetched calendar.ics (length):', icsData.length);
-                if (debugPanel) debugPanel.textContent = 'DEBUG: fetched calendar.ics (length): ' + icsData.length;
-                console.log('DEBUG: fetched calendar.ics (preview):', icsData.slice(0, 2000));
-
                 parseICSData(icsData);
-
-                console.log('DEBUG: parsed reservations count:', reservations.length);
-                if (debugPanel) debugPanel.textContent = 'DEBUG: parsed reservations count: ' + reservations.length;
-                console.log('DEBUG: parsed reservations preview:', reservations.map(r => ({ summary: r.summary, description: r.description && r.description.slice(0, 200) })));
-
                 displayReservations();
                 generateCalendar();
-
-                if (debugPanel) debugPanel.textContent = 'DEBUG: displayReservations complete - showing ' + Math.min(3, reservations.length) + ' items';
             } catch (error) {
                 console.error('Error loading calendar:', error);
-                if (debugPanel) debugPanel.textContent = 'DEBUG: fetch error: ' + (error && error.message);
                 document.getElementById('reservations-container').innerHTML =
                     '<div class="error">Error loading reservations. Please check if calendar.ics exists.</div>';
             }
@@ -208,8 +167,13 @@
                 }
 
                 // Track check-in and check-out dates separately per cabin
-                const startString = start.toISOString().split('T')[0];
-                const endString = end.toISOString().split('T')[0];
+                // Use local date format to avoid timezone issues
+                const startString = start.getFullYear() + '-' + 
+                    String(start.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(start.getDate()).padStart(2, '0');
+                const endString = end.getFullYear() + '-' + 
+                    String(end.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(end.getDate()).padStart(2, '0');
                 if (cabinName === 'colibri') {
                     checkInColibri.add(startString);
                     checkOutColibri.add(endString);
@@ -226,7 +190,9 @@
 
                 // Add all dates from start to end (excluding end date)
                 for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-                    const dateString = d.toISOString().split('T')[0];
+                    const dateString = d.getFullYear() + '-' + 
+                        String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(d.getDate()).padStart(2, '0');
 
                     if (!cabinOccupancy.has(dateString)) {
                         cabinOccupancy.set(dateString, new Set());
@@ -262,11 +228,12 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Filter for upcoming reservations
+            // Filter for current or upcoming reservations (end date >= today)
             const upcomingReservations = reservations.filter(reservation => {
-                const endDate = new Date(reservation.endDate);
-                return endDate >= today;
-            }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                const endDate = reservation.endDate;
+                const endDateNormalized = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+                return endDateNormalized >= today;
+            }).sort((a, b) => a.startDate - b.startDate);
 
             if (upcomingReservations.length === 0) {
                 container.innerHTML = '<div class="loading">No hay próximas reservas.</div>';
@@ -391,7 +358,10 @@
                 dayElement.textContent = day;
 
                 const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-                const dateString = dayDate.toISOString().split('T')[0];
+                // Use local date format to avoid timezone issues
+                const dateString = dayDate.getFullYear() + '-' + 
+                    String(dayDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(dayDate.getDate()).padStart(2, '0');
 
                 // Check cabin occupancy
                 const occupiedCabins = cabinOccupancy.get(dateString);
@@ -461,24 +431,29 @@
             const formattedDate = dayDate.toLocaleDateString('es-ES', options);
             modalTitle.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-            // Find all reservations that include this date
-            const clickedDate = new Date(dateString);
-            clickedDate.setHours(12, 0, 0, 0); // Noon to avoid timezone issues
+            // Parse dateString as local date (not UTC)
+            const [year, month, day] = dateString.split('-').map(Number);
+            const clickedDate = new Date(year, month - 1, day, 12, 0, 0, 0);
 
             const dayReservations = reservations.filter(res => {
-                const start = new Date(res.startDate);
-                const end = new Date(res.endDate);
-                start.setHours(0, 0, 0, 0);
-                end.setHours(23, 59, 59, 999);
-                return clickedDate >= start && clickedDate < end;
+                // Use original date objects directly
+                const start = res.startDate;
+                const end = res.endDate;
+                // Compare using just year/month/day
+                const clickedTime = clickedDate.getTime();
+                const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0).getTime();
+                const endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999).getTime();
+                // Include the end date (check-out day) in the results
+                return clickedTime >= startTime && clickedTime <= endTime;
             });
 
             if (dayReservations.length === 0) {
                 modalBody.innerHTML = '<div class="modal-empty">No hay reservas para este día</div>';
             } else {
                 const html = dayReservations.map(res => {
-                    const startDate = new Date(res.startDate);
-                    const endDate = new Date(res.endDate);
+                    // Use the original Date objects directly (not creating new ones)
+                    const startDate = res.startDate;
+                    const endDate = res.endDate;
                     const dateOpts = { day: 'numeric', month: 'short' };
                     const formattedStart = startDate.toLocaleDateString('es-ES', dateOpts);
                     const formattedEnd = endDate.toLocaleDateString('es-ES', dateOpts);
@@ -491,12 +466,29 @@
                     if (isColibri) { cabinClass = 'badge-colibri'; cabinName = 'Colibrí'; }
                     else if (isPeperina) { cabinClass = 'badge-peperina'; cabinName = 'Peperina'; }
 
-                    // Check if this is check-in or check-out day
-                    let statusBadge = '';
-                    if (startDate.toISOString().split('T')[0] === dateString) {
-                        statusBadge = '<span class="status-badge checkin-badge">Check-in</span>';
-                    } else if (endDate.toISOString().split('T')[0] === dateString) {
-                        statusBadge = '<span class="status-badge checkout-badge">Check-out</span>';
+                    // Check if this is check-in and/or check-out day (can be both)
+                    let statusBadges = '';
+                    
+                    // Format dates as YYYY-MM-DD for comparison using local date components
+                    const startStr = startDate.getFullYear() + '-' + 
+                        String(startDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(startDate.getDate()).padStart(2, '0');
+                    const endStr = endDate.getFullYear() + '-' + 
+                        String(endDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(endDate.getDate()).padStart(2, '0');
+                    
+                    console.log('Checking reservation:', res.summary, 'startStr:', startStr, 'endStr:', endStr, 'dateString:', dateString);
+                    
+                    const isCheckIn = startStr === dateString;
+                    const isCheckOut = endStr === dateString;
+                    
+                    console.log('isCheckIn:', isCheckIn, 'isCheckOut:', isCheckOut);
+                    
+                    if (isCheckIn) {
+                        statusBadges += '<span class="status-badge checkin-badge">Check-in</span>';
+                    }
+                    if (isCheckOut) {
+                        statusBadges += '<span class="status-badge checkout-badge">Check-out</span>';
                     }
 
                     const cleanName = res.summary.replace(/^Reserva:\s*/i, '');
@@ -506,7 +498,7 @@
                             <div class="modal-res-header">
                                 <span class="modal-res-name">${cleanName}</span>
                                 <span class="res-cabin-badge ${cabinClass}">${cabinName}</span>
-                                ${statusBadge}
+                                ${statusBadges}
                             </div>
                             <div class="modal-res-dates">
                                 📅 ${formattedStart} → ${formattedEnd}
