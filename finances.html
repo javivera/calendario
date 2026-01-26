@@ -153,12 +153,56 @@
             color: #4caf50;
         }
 
+        /* Year and Currency Selectors Container */
+        .selectors-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* Year Selector */
+        .year-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .year-selector label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .year-selector .year-btn {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .year-selector .year-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .year-selector .year-btn.active {
+            background: #2196f3;
+            color: #fff;
+            border-color: #2196f3;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
+        }
+
         /* Global Currency Toggle */
         .global-currency-toggle {
             display: flex;
-            justify-content: center;
             gap: 10px;
-            margin-bottom: 25px;
         }
 
         .global-currency-toggle .currency-btn {
@@ -509,6 +553,10 @@
             <span class="menu-icon">💰</span>
             <span class="menu-text">Panel Financiero</span>
         </a>
+        <a href="chat.html" class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span class="menu-text">Chat Asistente</span>
+        </a>
     </div>
 
     <!-- Menu Overlay -->
@@ -517,21 +565,39 @@
     <div class="container content-wrapper">
         <h1 class="page-title">💰 Panel <span>Financiero</span></h1>
 
-        <!-- Global Currency Toggle -->
-        <div class="global-currency-toggle">
-            <button class="currency-btn active" onclick="setGlobalCurrency('ARS')" id="global-ars-btn">🇦🇷 ARS</button>
-            <button class="currency-btn" onclick="setGlobalCurrency('USD')" id="global-usd-btn">🇺🇸 USD</button>
+        <!-- Year and Currency Selectors -->
+        <div class="selectors-container">
+            <div class="year-selector" id="year-selector">
+                <label>📅 Año:</label>
+                <!-- Buttons will be added dynamically -->
+            </div>
+            <div class="global-currency-toggle">
+                <button class="currency-btn active" onclick="setGlobalCurrency('ARS')" id="global-ars-btn">🇦🇷 ARS</button>
+                <button class="currency-btn" onclick="setGlobalCurrency('USD')" id="global-usd-btn">🇺🇸 USD</button>
+            </div>
         </div>
 
         <!-- Summary Cards -->
         <div class="summary-cards">
             <div class="summary-card">
-                <h3>📥 Total Cobrado (2026)</h3>
+                <h3>📥 Total Cobrado (<span id="ytd-year">2026</span>)</h3>
                 <div class="amount positive" id="total-collected">$0</div>
+                <div class="sub-amount" id="ytd-details">0 reservas · 0 noches</div>
             </div>
             <div class="summary-card">
                 <h3>📊 Proyectado</h3>
                 <div class="amount pending" id="total-projected">$0</div>
+                <div class="sub-amount" id="projected-details">0 reservas · 0 noches</div>
+            </div>
+            <div class="summary-card">
+                <h3>🎰 Precio Promedio/Noche</h3>
+                <div class="amount" id="avg-price-ytd">$0</div>
+                <div class="sub-amount" id="avg-price-projected">Proyectado: $0</div>
+            </div>
+            <div class="summary-card">
+                <h3>📈 Total Anual</h3>
+                <div class="amount positive" id="total-annual">$0</div>
+                <div class="sub-amount" id="annual-details">0 reservas · 0 noches</div>
             </div>
         </div>
 
@@ -560,6 +626,8 @@
     <script>
         let reservations = [];
         let globalCurrency = 'ARS';
+        let selectedYear = new Date().getFullYear();
+        let availableYears = [];
         
         // Store totals globally for currency switching
         let totals = {
@@ -570,12 +638,62 @@
         let monthlyDataGlobal = {};
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadReservations();
+            detectAvailableYears();
         });
+
+        async function detectAvailableYears() {
+            const currentYear = new Date().getFullYear();
+            availableYears = [currentYear]; // Current year always available (reservations.csv)
+            
+            // Check for past years (try years from 2020 to current-1)
+            for (let year = currentYear - 1; year >= 2020; year--) {
+                try {
+                    const response = await fetch(`../data/reservations${year}.csv`, { method: 'HEAD' });
+                    if (response.ok) {
+                        availableYears.push(year);
+                    }
+                } catch (e) {
+                    // File doesn't exist, skip
+                }
+            }
+            
+            // Sort years descending
+            availableYears.sort((a, b) => b - a);
+            
+            // Render year buttons
+            renderYearSelector();
+            
+            // Load current year data
+            loadReservations();
+        }
+
+        function renderYearSelector() {
+            const container = document.getElementById('year-selector');
+            let html = '<label>📅 Año:</label>';
+            
+            availableYears.forEach(year => {
+                const isActive = year === selectedYear ? 'active' : '';
+                html += `<button class="year-btn ${isActive}" onclick="setYear(${year})">${year}</button>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function setYear(year) {
+            selectedYear = year;
+            renderYearSelector();
+            loadReservations();
+        }
 
         async function loadReservations() {
             try {
-                const response = await fetch('../data/reservations.csv');
+                const currentYear = new Date().getFullYear();
+                // Current year uses reservations.csv, past years use reservationsYYYY.csv
+                const filename = selectedYear === currentYear 
+                    ? '../data/reservations.csv' 
+                    : `../data/reservations${selectedYear}.csv`;
+                
+                const response = await fetch(filename);
                 if (!response.ok) throw new Error('Network error');
                 const csvData = await response.text();
                 parseCSV(csvData);
@@ -603,60 +721,138 @@
             }
         }
 
+        // Helper function to parse date string as local date (not UTC)
+        function parseLocalDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day, 12, 0, 0, 0);
+        }
+
         function calculateData() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const currentYear = today.getFullYear();
+            const currentYear = selectedYear; // Use selected year for filtering
+            const isCurrentYear = selectedYear === new Date().getFullYear();
 
             totals = {
                 ytdARS: 0, ytdUSD: 0,
-                projectedARS: 0, projectedUSD: 0
+                projectedARS: 0, projectedUSD: 0,
+                totalNightsYTD: 0,
+                totalNightsProjected: 0,
+                reservationsYTD: 0,
+                reservationsProjected: 0
             };
             upcomingPaymentsData = [];
             monthlyDataGlobal = {};
 
             reservations.forEach(res => {
-                const checkIn = new Date(res.check_in_dates);
-                const checkOut = new Date(res.check_out_dates);
-                checkIn.setHours(0, 0, 0, 0);
-                checkOut.setHours(0, 0, 0, 0);
+                const checkIn = parseLocalDate(res.check_in_dates);
+                const checkOut = parseLocalDate(res.check_out_dates);
 
                 // Get amounts (assume full payment = reservation_total)
                 const totalARS = parseFloat(res.reservation_total_ARS) || 0;
                 const totalUSD = parseFloat(res.reservation_total) || 0;
 
-                // Year-to-date: reservations with check-in in current year that already started
-                if (checkIn.getFullYear() === currentYear && checkIn <= today) {
-                    totals.ytdARS += totalARS;
-                    totals.ytdUSD += totalUSD;
+                // Use total_nights from CSV if available, otherwise calculate
+                const totalNights = parseFloat(res.total_nights) || Math.max(1, Math.round((checkOut - checkIn) / (24 * 60 * 60 * 1000)));
+
+                // For past years: all reservations are YTD (completed)
+                // For current year: split by today's date
+                const todayNoon = new Date(today);
+                todayNoon.setHours(12, 0, 0, 0);
+                
+                if (!isCurrentYear) {
+                    // Past year - all reservations are completed (YTD)
+                    if (checkIn.getFullYear() === currentYear) {
+                        totals.ytdARS += totalARS;
+                        totals.ytdUSD += totalUSD;
+                        totals.totalNightsYTD += totalNights;
+                        totals.reservationsYTD++;
+                    }
+                } else {
+                    // Current year - split by today
+                    if (checkIn.getFullYear() === currentYear && checkIn <= todayNoon) {
+                        totals.ytdARS += totalARS;
+                        totals.ytdUSD += totalUSD;
+                        totals.totalNightsYTD += totalNights;
+                        totals.reservationsYTD++;
+                    }
+
+                    // Projected: future reservations (check-in after today)
+                    if (checkIn > todayNoon) {
+                        totals.projectedARS += totalARS;
+                        totals.projectedUSD += totalUSD;
+                        totals.totalNightsProjected += totalNights;
+                        totals.reservationsProjected++;
+
+                        // Add to upcoming payments list
+                        upcomingPaymentsData.push({
+                            guest: res.guest_names,
+                            checkIn: checkIn,
+                            checkOut: checkOut,
+                            cabin: res.cabin,
+                            totalARS: totalARS,
+                            totalUSD: totalUSD
+                        });
+                    }
                 }
 
-                // Projected: future reservations (check-in after today)
-                if (checkIn > today) {
-                    totals.projectedARS += totalARS;
-                    totals.projectedUSD += totalUSD;
-
-                    // Add to upcoming payments list
-                    upcomingPaymentsData.push({
-                        guest: res.guest_names,
-                        checkIn: checkIn,
-                        checkOut: checkOut,
-                        cabin: res.cabin,
-                        totalARS: totalARS,
-                        totalUSD: totalUSD
-                    });
+                // Monthly breakdown - iterate through each night of the stay
+                // A night belongs to the day the guest checks in (sleeps that night)
+                // Check-out day does NOT count as a night
+                const monthsData = {};
+                let nightsInCurrentYear = 0;
+                
+                for (let night = 0; night < totalNights; night++) {
+                    const nightDate = new Date(checkIn);
+                    nightDate.setDate(nightDate.getDate() + night);
+                    const year = nightDate.getFullYear();
+                    const month = nightDate.getMonth();
+                    
+                    if (year === currentYear) {
+                        nightsInCurrentYear++;
+                        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+                        if (!monthsData[monthKey]) {
+                            monthsData[monthKey] = { nights: 0, isCheckInMonth: checkIn.getFullYear() === currentYear && checkIn.getMonth() === month };
+                        }
+                        monthsData[monthKey].nights++;
+                    }
                 }
-
-                // Monthly breakdown (use check-in month) - only current year
-                if (checkIn.getFullYear() === currentYear) {
-                    const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
+                
+                // Skip if no nights in current year
+                if (nightsInCurrentYear === 0) return;
+                
+                // Distribute amount proportionally based on nights in current year only
+                const monthKeys = Object.keys(monthsData).sort();
+                let assignedARS = 0;
+                let assignedUSD = 0;
+                
+                // Calculate the total amount for current year (prorated if reservation spans years)
+                const amountForYearARS = totalARS * nightsInCurrentYear / totalNights;
+                const amountForYearUSD = totalUSD * nightsInCurrentYear / totalNights;
+                
+                monthKeys.forEach((monthKey, idx) => {
+                    const md = monthsData[monthKey];
                     if (!monthlyDataGlobal[monthKey]) {
                         monthlyDataGlobal[monthKey] = { ars: 0, usd: 0, count: 0 };
                     }
-                    monthlyDataGlobal[monthKey].ars += totalARS;
-                    monthlyDataGlobal[monthKey].usd += totalUSD;
-                    monthlyDataGlobal[monthKey].count++;
-                }
+                    
+                    // For last month, assign remainder to avoid rounding errors
+                    if (idx === monthKeys.length - 1) {
+                        monthlyDataGlobal[monthKey].ars += amountForYearARS - assignedARS;
+                        monthlyDataGlobal[monthKey].usd += amountForYearUSD - assignedUSD;
+                    } else {
+                        const amountARS = amountForYearARS * md.nights / nightsInCurrentYear;
+                        const amountUSD = amountForYearUSD * md.nights / nightsInCurrentYear;
+                        monthlyDataGlobal[monthKey].ars += amountARS;
+                        monthlyDataGlobal[monthKey].usd += amountUSD;
+                        assignedARS += amountARS;
+                        assignedUSD += amountUSD;
+                    }
+                    
+                    if (md.isCheckInMonth) {
+                        monthlyDataGlobal[monthKey].count++;
+                    }
+                });
             });
         }
 
@@ -682,9 +878,48 @@
             const format = globalCurrency === 'ARS' ? formatARS : formatUSD;
             const ytd = globalCurrency === 'ARS' ? totals.ytdARS : totals.ytdUSD;
             const projected = globalCurrency === 'ARS' ? totals.projectedARS : totals.projectedUSD;
+            const totalAnnual = ytd + projected;
+            const totalNights = totals.totalNightsYTD + totals.totalNightsProjected;
+            const totalReservations = totals.reservationsYTD + totals.reservationsProjected;
+            const isCurrentYear = selectedYear === new Date().getFullYear();
 
+            // Update year label
+            document.getElementById('ytd-year').textContent = selectedYear;
+
+            // YTD
             document.getElementById('total-collected').textContent = format(ytd);
-            document.getElementById('total-projected').textContent = format(projected);
+            document.getElementById('ytd-details').textContent = `${totals.reservationsYTD} reservas · ${totals.totalNightsYTD} noches`;
+            
+            // Projected (hide for past years)
+            const projectedCard = document.getElementById('total-projected').parentElement;
+            if (isCurrentYear) {
+                projectedCard.style.display = '';
+                document.getElementById('total-projected').textContent = format(projected);
+                document.getElementById('projected-details').textContent = `${totals.reservationsProjected} reservas · ${totals.totalNightsProjected} noches`;
+            } else {
+                projectedCard.style.display = 'none';
+            }
+            
+            // Average price per night
+            const avgYTD = totals.totalNightsYTD > 0 ? ytd / totals.totalNightsYTD : 0;
+            const avgProjected = totals.totalNightsProjected > 0 ? projected / totals.totalNightsProjected : 0;
+            document.getElementById('avg-price-ytd').textContent = format(avgYTD);
+            if (isCurrentYear && totals.totalNightsProjected > 0) {
+                document.getElementById('avg-price-projected').textContent = `Proyectado: ${format(avgProjected)}`;
+                document.getElementById('avg-price-projected').style.display = '';
+            } else {
+                document.getElementById('avg-price-projected').style.display = 'none';
+            }
+            
+            // Total annual (hide for past years since it's same as YTD)
+            const annualCard = document.getElementById('total-annual').parentElement;
+            if (isCurrentYear && totals.reservationsProjected > 0) {
+                annualCard.style.display = '';
+                document.getElementById('total-annual').textContent = format(totalAnnual);
+                document.getElementById('annual-details').textContent = `${totalReservations} reservas · ${totalNights} noches`;
+            } else {
+                annualCard.style.display = 'none';
+            }
         }
 
         function renderUpcomingPayments() {
