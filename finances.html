@@ -638,6 +638,7 @@
         let monthlyDataGlobal = {};
 
         document.addEventListener('DOMContentLoaded', function() {
+            loadFinanceViewState();
             detectAvailableYears();
         });
 
@@ -683,6 +684,34 @@
             selectedYear = year;
             renderYearSelector();
             loadReservations();
+            saveFinanceViewState();
+        }
+
+        function setGlobalCurrency(currency) {
+            globalCurrency = currency;
+            renderAll();
+            saveFinanceViewState();
+        }
+
+        function saveFinanceViewState() {
+            try {
+                const state = { selectedYear: selectedYear, globalCurrency: globalCurrency };
+                localStorage.setItem('finances_view_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn('Could not save finance view state', e);
+            }
+        }
+
+        function loadFinanceViewState() {
+            try {
+                const raw = localStorage.getItem('finances_view_state');
+                if (!raw) return;
+                const st = JSON.parse(raw);
+                if (st && st.selectedYear) selectedYear = st.selectedYear;
+                if (st && st.globalCurrency) globalCurrency = st.globalCurrency;
+            } catch (e) {
+                console.warn('Could not load finance view state', e);
+            }
         }
 
         async function loadReservations() {
@@ -867,6 +896,7 @@
         function setGlobalCurrency(currency) {
             globalCurrency = currency;
             renderAll();
+            try { saveFinanceViewState(); } catch (e) { /* ignore */ }
         }
 
         function updateToggleButtons() {

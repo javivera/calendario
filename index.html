@@ -99,6 +99,7 @@
 
         // Initialize calendar
         document.addEventListener('DOMContentLoaded', function () {
+            loadCalendarViewState();
             loadReservations();
             generateCalendar();
             setupNavigation();
@@ -108,12 +109,36 @@
             document.getElementById('prev-month').addEventListener('click', function () {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 generateCalendar();
+                saveCalendarViewState();
             });
 
             document.getElementById('next-month').addEventListener('click', function () {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 generateCalendar();
+                saveCalendarViewState();
             });
+        }
+
+        function saveCalendarViewState() {
+            try {
+                const state = { year: currentDate.getFullYear(), month: currentDate.getMonth() };
+                localStorage.setItem('calendar_view_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn('Could not save calendar view state', e);
+            }
+        }
+
+        function loadCalendarViewState() {
+            try {
+                const raw = localStorage.getItem('calendar_view_state');
+                if (!raw) return;
+                const st = JSON.parse(raw);
+                if (st && typeof st.year === 'number' && typeof st.month === 'number') {
+                    currentDate = new Date(st.year, st.month, 1);
+                }
+            } catch (e) {
+                console.warn('Could not load calendar view state', e);
+            }
         }
 
         async function loadReservations() {

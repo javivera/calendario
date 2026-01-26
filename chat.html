@@ -389,6 +389,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkConnection();
             autoResizeTextarea();
+            // Load persisted conversation if available
+            loadConversationFromStorage();
         });
 
         async function checkConnection() {
@@ -446,11 +448,10 @@
             input.value = '';
             input.style.height = 'auto';
             
-            // Add user message to UI
+            // Add user message to UI and history
             addMessage(message, 'user');
-            
-            // Add to history
             conversationHistory.push({ role: 'user', content: message });
+            saveConversationToStorage();
             
             // Show typing indicator
             showTypingIndicator();
@@ -479,11 +480,12 @@
 
                 const data = await response.json();
                 
-                if (data.success) {
-                    addMessage(data.response, 'assistant');
-                    conversationHistory.push({ role: 'assistant', content: data.response });
-                    setConnected(true);
-                } else {
+                    if (data.success) {
+                        addMessage(data.response, 'assistant');
+                        conversationHistory.push({ role: 'assistant', content: data.response });
+                        saveConversationToStorage();
+                        setConnected(true);
+                    } else {
                     addMessage('Error: ' + (data.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
@@ -503,6 +505,33 @@
             messageDiv.textContent = text;
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
+        }
+
+        // Persistence helpers
+        function saveConversationToStorage() {
+            try {
+                localStorage.setItem('chat_conversation_history', JSON.stringify(conversationHistory));
+            } catch (e) {
+                console.warn('Could not save conversation to localStorage', e);
+            }
+        }
+
+        function loadConversationFromStorage() {
+            try {
+                const raw = localStorage.getItem('chat_conversation_history');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (!Array.isArray(data) || data.length === 0) return;
+                // Replace current UI with persisted messages
+                const container = document.getElementById('messages-container');
+                container.innerHTML = '';
+                data.forEach(msg => {
+                    addMessage(msg.content, msg.role === 'user' ? 'user' : (msg.role === 'assistant' ? 'assistant' : 'system'));
+                });
+                conversationHistory = data;
+            } catch (e) {
+                console.warn('Could not load conversation from localStorage', e);
+            }
         }
 
         function showTypingIndicator() {
