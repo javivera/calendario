@@ -363,6 +363,88 @@
             font-weight: 600;
         }
 
+        .bar-nights {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* Price per night chart */
+        .price-chart {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+
+        .line-chart-container {
+            position: relative;
+            height: 200px;
+            padding: 20px 10px 30px 50px;
+        }
+
+        .line-chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: #2196f3;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-area {
+            fill: url(#areaGradient);
+        }
+
+        .chart-point {
+            fill: #2196f3;
+            stroke: #fff;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: r 0.2s;
+        }
+
+        .chart-point:hover {
+            r: 8;
+        }
+
+        .chart-grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .chart-axis-label {
+            fill: rgba(255, 255, 255, 0.6);
+            font-size: 0.7rem;
+        }
+
+        .chart-x-label {
+            fill: rgba(255, 255, 255, 0.7);
+            font-size: 0.65rem;
+            text-anchor: middle;
+        }
+
+        .chart-y-label {
+            fill: rgba(255, 255, 255, 0.6);
+            font-size: 0.65rem;
+            text-anchor: end;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
         /* Upcoming payments */
         .payment-list {
             max-height: 400px;
@@ -605,6 +687,12 @@
         <div class="section monthly-chart">
             <h2>📈 Ingresos Mensuales</h2>
             <div class="chart-container" id="chart-container"></div>
+        </div>
+
+        <!-- Price per Night Chart -->
+        <div class="section price-chart">
+            <h2>💰 Precio Promedio por Noche</h2>
+            <div class="line-chart-container" id="price-chart-container"></div>
         </div>
 
         <!-- Main content -->
@@ -862,8 +950,9 @@
                 monthKeys.forEach((monthKey, idx) => {
                     const md = monthsData[monthKey];
                     if (!monthlyDataGlobal[monthKey]) {
-                        monthlyDataGlobal[monthKey] = { ars: 0, usd: 0, count: 0 };
+                        monthlyDataGlobal[monthKey] = { ars: 0, usd: 0, count: 0, nights: 0 };
                     }
+                    monthlyDataGlobal[monthKey].nights += md.nights;
                     
                     // For last month, assign remainder to avoid rounding errors
                     if (idx === monthKeys.length - 1) {
@@ -890,6 +979,7 @@
             renderUpcomingPayments();
             renderMonthlyBreakdown();
             renderChart();
+            renderPricePerNightChart();
             updateToggleButtons();
         }
 
@@ -1072,10 +1162,11 @@
                     ? (value >= 1000000 ? `$${(value/1000000).toFixed(1)}M` : `$${Math.round(value/1000)}k`)
                     : `$${Math.round(value)}`;
 
+                const nights = data.nights || 0;
                 return `
                     <div class="chart-bar">
                         <div class="bar-wrapper">
-                            <div class="bar-amount">${formattedAmount}</div>
+                            <div class="bar-amount">${formattedAmount} - ${nights} 🌙</div>
                             <div class="bar ${isProjected ? 'projected' : 'income'}" style="height: ${Math.max(height, 5)}px;"></div>
                         </div>
                         <div class="bar-label">${monthNames[month]}<br>${year.slice(2)}</div>
@@ -1084,6 +1175,132 @@
             }).join('');
 
             container.innerHTML = html;
+        }
+
+        function renderPricePerNightChart() {
+            const container = document.getElementById('price-chart-container');
+            const sortedMonths = Object.keys(monthlyDataGlobal).sort();
+            
+            if (sortedMonths.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px;">Sin datos</div>';
+                return;
+            }
+
+            // Calculate price per night for each month
+            const priceData = sortedMonths.map(monthKey => {
+                const data = monthlyDataGlobal[monthKey];
+                const amount = globalCurrency === 'ARS' ? data.ars : data.usd;
+                const nights = data.nights || 0;
+                const pricePerNight = nights > 0 ? amount / nights : 0;
+                return { monthKey, pricePerNight, nights };
+            }).filter(d => d.nights > 0);
+
+            if (priceData.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px;">Sin datos</div>';
+                return;
+            }
+
+            const monthNames = {
+                '01': 'Ene', '02': 'Feb', '03': 'Mar', '04': 'Abr',
+                '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+                '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dic'
+            };
+
+            // Chart dimensions
+            const width = container.clientWidth || 600;
+            const height = 180;
+            const paddingLeft = 60;
+            const paddingRight = 20;
+            const paddingTop = 20;
+            const paddingBottom = 30;
+            const chartWidth = width - paddingLeft - paddingRight;
+            const chartHeight = height - paddingTop - paddingBottom;
+
+            // Find min/max for scaling
+            const prices = priceData.map(d => d.pricePerNight);
+            const minPrice = Math.min(...prices) * 0.9;
+            const maxPrice = Math.max(...prices) * 1.1;
+
+            // Scale functions
+            const xScale = (i) => paddingLeft + (i / (priceData.length - 1 || 1)) * chartWidth;
+            const yScale = (val) => paddingTop + chartHeight - ((val - minPrice) / (maxPrice - minPrice || 1)) * chartHeight;
+
+            // Build points
+            const points = priceData.map((d, i) => ({ x: xScale(i), y: yScale(d.pricePerNight), ...d }));
+
+            // Create path for line
+            const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+            // Create path for area (filled under line)
+            const areaPath = `${linePath} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`;
+
+            // Y-axis labels (5 ticks)
+            const yTicks = 5;
+            const yLabels = [];
+            for (let i = 0; i <= yTicks; i++) {
+                const val = minPrice + (maxPrice - minPrice) * (i / yTicks);
+                const y = yScale(val);
+                const format = globalCurrency === 'ARS' 
+                    ? (val >= 1000000 ? `$${(val/1000000).toFixed(1)}M` : `$${Math.round(val/1000)}k`)
+                    : `$${Math.round(val)}`;
+                yLabels.push({ y, label: format });
+            }
+
+            // Build SVG
+            const svg = `
+                <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#2196f3" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#2196f3" stop-opacity="0.05"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Grid lines -->
+                    ${yLabels.map(t => `<line class="chart-grid-line" x1="${paddingLeft}" y1="${t.y}" x2="${width - paddingRight}" y2="${t.y}"/>`).join('')}
+                    
+                    <!-- Y-axis labels -->
+                    ${yLabels.map(t => `<text class="chart-y-label" x="${paddingLeft - 8}" y="${t.y + 4}">${t.label}</text>`).join('')}
+                    
+                    <!-- X-axis labels -->
+                    ${points.map((p, i) => {
+                        const [year, month] = priceData[i].monthKey.split('-');
+                        return `<text class="chart-x-label" x="${p.x}" y="${height - 8}">${monthNames[month]} ${year.slice(2)}</text>`;
+                    }).join('')}
+                    
+                    <!-- Area fill -->
+                    <path class="chart-area" d="${areaPath}"/>
+                    
+                    <!-- Line -->
+                    <path class="chart-line" d="${linePath}"/>
+                    
+                    <!-- Points -->
+                    ${points.map((p, i) => {
+                        const format = globalCurrency === 'ARS' ? formatARS(p.pricePerNight) : formatUSD(p.pricePerNight);
+                        return `<circle class="chart-point" cx="${p.x}" cy="${p.y}" r="5" data-value="${format}" data-month="${monthNames[priceData[i].monthKey.split('-')[1]]} ${priceData[i].monthKey.split('-')[0]}"/>`;
+                    }).join('')}
+                </svg>
+            `;
+
+            container.innerHTML = svg;
+
+            // Add hover tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'chart-tooltip';
+            tooltip.style.display = 'none';
+            container.appendChild(tooltip);
+
+            container.querySelectorAll('.chart-point').forEach(point => {
+                point.addEventListener('mouseenter', (e) => {
+                    tooltip.textContent = `${e.target.dataset.month}: ${e.target.dataset.value}/noche`;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = `${e.target.cx.baseVal.value - 40}px`;
+                    tooltip.style.top = `${e.target.cy.baseVal.value - 35}px`;
+                });
+                point.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+            });
         }
 
         function formatARS(amount) {
