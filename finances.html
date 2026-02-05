@@ -509,6 +509,12 @@
             font-size: 1rem;
         }
 
+        .payment-detail {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 2px;
+        }
+
         .payment-total.ars {
             color: #4caf50;
         }
@@ -908,7 +914,10 @@
                             checkOut: checkOut,
                             cabin: res.cabin,
                             totalARS: totalARS,
-                            totalUSD: totalUSD
+                            totalUSD: totalUSD,
+                            nights: totalNights,
+                            pricePerNightARS: totalNights > 0 ? totalARS / totalNights : 0,
+                            pricePerNightUSD: totalNights > 0 ? totalUSD / totalNights : 0
                         });
                     }
                 }
@@ -1065,12 +1074,15 @@
                 const cabinName = p.cabin.toLowerCase().includes('colibr') ? 'Colibrí' : 'Peperina';
 
                 const total = globalCurrency === 'ARS' ? p.totalARS : p.totalUSD;
+                const pricePerNight = globalCurrency === 'ARS' ? p.pricePerNightARS : p.pricePerNightUSD;
 
                 let amountHtml = '';
                 if (total > 0) {
                     amountHtml += `<div class="payment-total">${format(total)}</div>`;
+                    amountHtml += `<div class="payment-detail">${p.nights} noches · ${format(pricePerNight)}/noche</div>`;
                 } else {
                     amountHtml += `<div class="payment-total" style="color:rgba(255,255,255,0.5)">Sin precio</div>`;
+                    amountHtml += `<div class="payment-detail">${p.nights} noches</div>`;
                 }
 
                 return `
