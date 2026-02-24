@@ -184,15 +184,15 @@ h1 {
 }
 
 .calendar-day.checkin-colibri:not(.checkout-colibri)::before {
-    content: 'I';
+    content: 'E';
 }
 
 .calendar-day.checkout-colibri:not(.checkin-colibri)::before {
-    content: 'O';
+    content: 'S';
 }
 
 .calendar-day.checkin-colibri.checkout-colibri::before {
-    content: 'IO';
+    content: 'ES';
 }
 
 /* Peperina (lower-right triangle area) - white letter */
@@ -210,15 +210,15 @@ h1 {
 }
 
 .calendar-day.checkin-peperina:not(.checkout-peperina)::after {
-    content: 'I';
+    content: 'E';
 }
 
 .calendar-day.checkout-peperina:not(.checkin-peperina)::after {
-    content: 'O';
+    content: 'S';
 }
 
 .calendar-day.checkin-peperina.checkout-peperina::after {
-    content: 'IO';
+    content: 'ES';
 }
 
 /* RESERVATIONS LIST - below the calendar */
